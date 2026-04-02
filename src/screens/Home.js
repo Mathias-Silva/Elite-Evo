@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Text, View, TouchableOpacity, FlatList, ActivityIndicator, Image, ToastAndroid, Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
-import { ShoppingCart, Search, Star } from 'lucide-react-native';
+import { ShoppingCart, Search, Star, Heart } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from '../store/cartSlice';
+import { addFavorite, removeFavorite } from '../store/favoritesSlice';
 
 
 const productImages = {
@@ -45,6 +46,8 @@ export default function Home() {
 
   const cartItems = useSelector(state => state.cart.items);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const favoriteItems = useSelector(state => state.favorites.items);
+  const favoriteIds = useMemo(() => new Set(favoriteItems.map(f => f.id)), [favoriteItems]);
 
   async function loadData() {
     try {
@@ -65,6 +68,14 @@ export default function Home() {
     dispatch(addItem(product));
     if (Platform.OS === 'android') {
       ToastAndroid.show(`${product.name} adicionado!`, ToastAndroid.SHORT);
+    }
+  };
+
+  const handleToggleFavorite = (product) => {
+    if (favoriteIds.has(product.id)) {
+      dispatch(removeFavorite(product.id));
+    } else {
+      dispatch(addFavorite(product));
     }
   };
 
@@ -162,14 +173,26 @@ export default function Home() {
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={ListHeader}
         ListFooterComponent={ListFooter}
-        renderItem={({ item }) => (
+        renderItem={({ item }) => {
+          const isFav = favoriteIds.has(item.id);
+          return (
           <View style={styles.productCard}>
-            {item.tag && (
+            {item.tag && item.tag !== 'NULL' && (
               <View style={[styles.tag, {backgroundColor: item.tag === 'ESGOTADO' ? '#333' : '#FF6B00'}]}>
                 <Text style={styles.tagText}>{item.tag}</Text>
               </View>
             )}
-            
+
+            <TouchableOpacity
+              style={styles.heartBtn}
+              onPress={() => handleToggleFavorite(item)}
+            >
+              <Heart
+                color="#FF6B00"
+                fill={isFav ? '#FF6B00' : 'transparent'}
+                size={16}
+              />
+            </TouchableOpacity>
             
             <View style={styles.imagePlaceholder}>
               {item.image && productImages[item.image] ? (
@@ -202,7 +225,8 @@ export default function Home() {
               <Text style={styles.addToCartText}>Adicionar</Text>
             </TouchableOpacity>
           </View>
-        )}
+          );
+        }}
         contentContainerStyle={styles.flatListContent}
       />
     </SafeAreaView>

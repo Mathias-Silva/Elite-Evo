@@ -130,6 +130,13 @@ export const styles = StyleSheet.create({
     borderRadius: 8, 
     zIndex: 1 
   },
+  heartBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 2,
+    padding: 4,
+  },
   tagText: { 
     color: '#FFF', 
     fontSize: 9, 
