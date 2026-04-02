@@ -5,22 +5,44 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SQLiteProvider } from 'expo-sqlite';
 import { Home as HomeIcon, Grid, Heart, User, ShoppingCart } from 'lucide-react-native';
-
-
 import Home from './src/screens/Home';
 import Catalog from './src/screens/Catalog';
 import Favorites from './src/screens/Favorites';
 import Profile from './src/screens/Profile';
 import Cart from './src/screens/Cart';
+import AuthHomeScreen from './src/screens/AuthHome';
+import LoginScreen from './src/screens/Login';
+import RegisterScreen from './src/screens/Register';
 
-// FORMA CORRETA:
 import { Provider } from 'react-redux'; 
-import { store } from './src/store'; // Certifique-se que o caminho está certo
+import { store } from './src/store'; 
 
 import { initializeDatabase } from './src/database/initializeDatabase';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+
+const AuthStack = createNativeStackNavigator();
+
+function AuthStackNavigator() {
+  return (
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="AuthHome" component={AuthHomeScreen} />
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Register" component={RegisterScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
+function PerfilTabScreen() {
+  const { isLoggedIn } = useAuth();
+
+  if (isLoggedIn) {
+    return <Profile />;
+  }
+  return <AuthStackNavigator />;
+}
+
 
 function TabNavigator() {
   return (
@@ -80,7 +102,7 @@ function TabNavigator() {
       />
       <Tab.Screen 
         name="Perfil" 
-        component={Profile} 
+        component={PerfilTabScreen} 
         options={{ 
           tabBarIcon: ({ color }) => <User color={color} size={24} /> 
         }}
@@ -93,11 +115,11 @@ export default function App() {
   return (
     <Provider store={store}>
     <SQLiteProvider databaseName="eliteEvo.db" onInit={initializeDatabase}>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="MainTabs" component={TabNavigator} />
-        </Stack.Navigator>
-      </NavigationContainer>
+       <AuthProvider>
+          <NavigationContainer>
+            <TabNavigator />
+          </NavigationContainer>
+        </AuthProvider>
     </SQLiteProvider>
     </Provider>
   );

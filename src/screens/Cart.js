@@ -26,6 +26,7 @@ const productImages = {
   'whey_isolate_morango': require('../assets/whey_isolate_morango.png'),
   'whey_isolate': require('../assets/whey_isolate.png'),
   'whey_isolate1': require('../assets/whey_isolate1.png'),
+  'vitaminas': require('../assets/vitaminas.png'),
 
 };
 
@@ -130,7 +131,7 @@ export default function Cart() {
           <Text style={styles.emptyText}>Seu carrinho está vazio</Text>
           <TouchableOpacity 
             style={styles.backBtn}
-            onPress={() => navigation.navigate('Início')}
+            onPress={() => navigation.navigate('Catálogo')}
           >
             <Text style={styles.backBtnText}>Voltar às compras</Text>
           </TouchableOpacity>

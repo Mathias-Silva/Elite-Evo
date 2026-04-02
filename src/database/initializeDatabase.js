@@ -16,6 +16,23 @@ export async function initializeDatabase(database) {
     );
   `);
 
+    await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      profileImage TEXT
+    );
+  `);
+
+    // Adiciona coluna profileImage em bancos já existentes
+  try {
+    await database.execAsync(`ALTER TABLE users ADD COLUMN profileImage TEXT;`);
+  } catch (e) {
+    // Coluna já existe, ignorar
+  }
+
   // 2. Verificação de Seed (Popula o banco se estiver vazio)
   const count = await database.getFirstAsync('SELECT COUNT(*) as total FROM products');
   
