@@ -104,7 +104,7 @@ export const styles = StyleSheet.create({
 
   
   flatListContent: {
-    paddingHorizontal: 10, // Pequeno respiro nas bordas da tela
+    paddingHorizontal: 10, 
     paddingBottom: 20
   },
 
@@ -208,5 +208,12 @@ export const styles = StyleSheet.create({
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center'
-  }
+  },
+  heartBtn: {
+  position: 'absolute',
+  right: 10,
+  top: 10,
+  zIndex: 10, 
+  padding: 5, 
+},
 });
