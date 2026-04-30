@@ -1,17 +1,16 @@
-
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Alert, Animated
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeFavorite } from '../store/favoritesSlice';
+import { removeFavorite, addFavorite } from '../store/favoritesSlice';
 import { addItem } from '../store/cartSlice';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useSQLiteContext } from 'expo-sqlite';
 
 const productImages = {
-
   'aminoacidos_capsula': require('../assets/aminoacidos_capsula.png'),
   'aminoacidos_glutamina': require('../assets/aminoacidos_glutamina.png'),
   'aminoacidos_po': require('../assets/aminoacidos_po.png'),
@@ -30,61 +29,39 @@ const productImages = {
   'vitaminas': require('../assets/vitaminas.png'),
 };
 
-
+// Componente de Item Otimizado
 const FavoriteItem = ({ item, onAddToCart }) => {
   const dispatch = useDispatch();
-  
-  // Valores da animação
-  const fadeAnim = useRef(new Animated.Value(1)).current; 
-  const scaleAnim = useRef(new Animated.Value(1)).current; 
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleConfirmRemove = () => {
     Alert.alert(
       "Remover Favorito",
-      `Deseja realmente remover ${item.name} dos seus favoritos?`,
+      `Deseja realmente remover ${item.name}?`,
       [
         { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Remover", 
-          style: "destructive", 
-          onPress: () => startExitAnimation() 
-        }
+        { text: "Remover", style: "destructive", onPress: () => startExitAnimation() }
       ]
     );
   };
 
   const startExitAnimation = () => {
-    
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 0.3,
-        duration: 450,
-        useNativeDriver: true,
-      })
+      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 0.7, duration: 300, useNativeDriver: true })
     ]).start(() => {
-     
+      // IMPORTANTE: Envia apenas o ID conforme o seu slice espera
       dispatch(removeFavorite(item.id));
     });
   };
 
   return (
-    <Animated.View style={[
-      styles.card, 
-      { opacity: fadeAnim, transform: [{ scale: scaleAnim }] } // Aplica animação
-    ]}>
+    <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
       <View style={styles.imageContainer}>
-        {productImages[item.image] ? (
-          <Image
-            source={productImages[item.image]}
-            style={styles.productImg}
-            resizeMode="contain"
-          />
-        ) : null}
+        {item.image && productImages[item.image] && (
+          <Image source={productImages[item.image]} style={styles.productImg} resizeMode="contain" />
+        )}
       </View>
 
       <View style={styles.info}>
@@ -92,30 +69,55 @@ const FavoriteItem = ({ item, onAddToCart }) => {
         <Text style={styles.productFlavor}>{item.flavor}</Text>
         <Text style={styles.productPrice}>R$ {item.price.toFixed(2).replace('.', ',')}</Text>
 
-        <TouchableOpacity
-          style={styles.addToCartBtn}
-          onPress={() => onAddToCart(item)}
-        >
+        <TouchableOpacity style={styles.addToCartBtn} onPress={() => onAddToCart(item)}>
           <ShoppingCart color="#FFF" size={14} />
-          <Text style={styles.addToCartText}>Adicionar ao Carrinho</Text>
+          <Text style={styles.addToCartText}>Adicionar</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.removeBtn}
-        onPress={handleConfirmRemove} 
-      >
+      <TouchableOpacity style={styles.removeBtn} onPress={handleConfirmRemove}>
         <Trash2 color="#666" size={20} />
       </TouchableOpacity>
     </Animated.View>
   );
 };
-// -------------------------------------------------
 
 export default function Favorites() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+  const db = useSQLiteContext();
   const items = useSelector(state => state.favorites.items);
+
+  // A SINCRONIZAÇÃO DEVE FICAR NA TELA PRINCIPAL (PAI)
+  useEffect(() => {
+    if (isFocused && items.length > 0) {
+      syncFavorites();
+    }
+  }, [isFocused]);
+
+  const syncFavorites = async () => {
+    try {
+      for (const fav of items) {
+        const freshData = await db.getFirstAsync('SELECT * FROM products WHERE id = ?', [fav.id]);
+        
+        if (!freshData) {
+          // Se sumiu do banco, remove dos favoritos
+          dispatch(removeFavorite(fav.id));
+        } else if (
+          freshData.name !== fav.name || 
+          freshData.price !== fav.price || 
+          freshData.flavor !== fav.flavor
+        ) {
+          // Se mudou algo, atualiza o item no Redux
+          dispatch(removeFavorite(fav.id));
+          dispatch(addFavorite(freshData));
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao sincronizar favoritos:", error);
+    }
+  };
 
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
@@ -123,18 +125,12 @@ export default function Favorites() {
 
   if (items.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Favoritos</Text>
-        </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}><Text style={styles.headerTitle}>Favoritos</Text></View>
         <View style={styles.emptyContainer}>
           <Heart color="#1A1A1A" size={90} />
           <Text style={styles.emptyTitle}>Nenhum favorito ainda</Text>
-          <Text style={styles.emptySubtitle}>Adicione produtos que você ama e encontre-os aqui.</Text>
-          <TouchableOpacity
-            style={styles.emptyBtn}
-            onPress={() => navigation.navigate('Catálogo')}
-          >
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Catálogo')}>
             <Text style={styles.emptyBtnText}>Ver Produtos</Text>
           </TouchableOpacity>
         </View>
@@ -143,7 +139,7 @@ export default function Favorites() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Favoritos</Text>
         <Text style={styles.headerCount}>{items.length} {items.length === 1 ? 'item' : 'itens'}</Text>
@@ -153,18 +149,13 @@ export default function Favorites() {
         data={items}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
-     
         renderItem={({ item }) => (
-          <FavoriteItem 
-            item={item} 
-            onAddToCart={handleAddToCart}
-          />
+          <FavoriteItem item={item} onAddToCart={handleAddToCart} />
         )}
       />
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
@@ -173,7 +164,6 @@ const styles = StyleSheet.create({
   headerCount: { color: '#666', fontSize: 14 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 },
   emptyTitle: { color: '#333', fontSize: 20, fontWeight: 'bold', marginTop: 20 },
-  emptySubtitle: { color: '#444', fontSize: 13, textAlign: 'center', marginTop: 10, lineHeight: 20 },
   emptyBtn: { marginTop: 25, backgroundColor: '#FF6B00', paddingVertical: 14, paddingHorizontal: 35, borderRadius: 30 },
   emptyBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
   listContent: { paddingHorizontal: 20, paddingBottom: 20 },

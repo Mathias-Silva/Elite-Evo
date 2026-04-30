@@ -13,12 +13,23 @@ const favoritesSlice = createSlice({
         state.items.push(product);
       }
     },
+
     removeFavorite: (state, action) => {
       const id = action.payload;
-      state.items = state.items.filter(item => item.id !== id);
+      const targetId = typeof id === 'object' ? id.id : id;
+      state.items = state.items.filter(item => item.id !== targetId);
+    },
+
+    // ✅ NOVO: atualiza dados do produto nos favoritos sem removê-lo
+    updateFavorite: (state, action) => {
+      const updatedProduct = action.payload;
+      const index = state.items.findIndex(item => item.id === updatedProduct.id);
+      if (index !== -1) {
+        state.items[index] = { ...updatedProduct };
+      }
     },
   },
 });
 
-export const { addFavorite, removeFavorite } = favoritesSlice.actions;
+export const { addFavorite, removeFavorite, updateFavorite } = favoritesSlice.actions;
 export default favoritesSlice.reducer;

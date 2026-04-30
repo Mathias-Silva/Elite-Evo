@@ -19,4 +19,5 @@ module.exports = {
     secret: process.env.JWT_SECRET || 'elite-evo-secret-dev',
     expiresIn: '7d',
   },
+  
 };

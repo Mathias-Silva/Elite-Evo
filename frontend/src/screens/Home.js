@@ -24,7 +24,7 @@ import { CategoryCard } from "../components/CategoryCard";
 import { Newsletter } from "../components/Newsletter";
 import { FooterInfo } from "../components/FooterInfo";
 import { styles } from "./HomeStyles";
-
+import { useIsFocused } from '@react-navigation/native';
 const productImages = {
   aminoacidos_capsula: require("../assets/aminoacidos_capsula.png"),
   aminoacidos_glutamina: require("../assets/aminoacidos_glutamina.png"),
@@ -64,6 +64,21 @@ const AnimatedHeart = ({ isFav, onPress, style }) => {
 };
 
 export default function Home() {
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (isFocused) {
+      fetchProducts(); // Sua função que busca no SQLite
+    }
+
+  }, [isFocused]);
+  const fetchProducts = async () => {
+    try {
+      const result = await db.getAllAsync('SELECT * FROM products ORDER BY id DESC');
+      setProducts(result);
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+    }
+  };
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const db = useSQLiteContext();

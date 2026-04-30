@@ -1,43 +1,57 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Alert, Keyboard } from 'react-native';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  Alert,
+  Keyboard,
+} from "react-native";
+import { useSQLiteContext } from "expo-sqlite";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginScreen({ navigation }) {
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const db = useSQLiteContext();
   const { setIsLoggedIn, setUser } = useAuth();
 
-  async function handleLogin() {
-    Keyboard.dismiss();
+ async function handleLogin() {
+  Keyboard.dismiss();
 
-    if (!email || !password) {
-      Alert.alert("Erro", "Preencha e-mail e senha");
-      return;
-    }
-
-    try {
-      // Busca case-insensitive com COLLATE NOCASE
-      const userFound = await db.getFirstAsync(
-        'SELECT id, name, email FROM users WHERE email = ? COLLATE NOCASE AND password = ?',
-        [email.trim(), password]
-      );
-
-      if (userFound) {
-        Alert.alert("Sucesso", `Bem-vindo, ${userFound.name}!`);
-        setUser(userFound);
-        setIsLoggedIn(true);
-      } else {
-        Alert.alert("Erro", "E-mail ou senha incorretos");
-      }
-
-    } catch (error) {
-      console.error("Erro no login:", error);
-      Alert.alert("Erro", "Falha no banco de dados: " + error.message);
-    }
+  if (!email || !password) {
+    Alert.alert("Erro", "Preencha e-mail e senha");
+    return;
   }
+
+  try {
+    // Busca o usuário
+    const userFound = await db.getFirstAsync(
+      "SELECT id, name, email FROM users WHERE email = ? COLLATE NOCASE AND password = ?",
+      [email.trim(), password]
+    );
+
+    if (userFound) {
+      setUser(userFound);
+      setIsLoggedIn(true);
+
+      // Checa se é admin
+      if (userFound.email.toLowerCase() === "admin@eliteevo.com") {
+        Alert.alert("Sucesso", "Acessando Painel Administrativo");
+        navigation.replace("AdminScreen"); 
+      } else {
+        navigation.replace("AuthHome");
+      }
+    } else {
+      Alert.alert("Erro", "E-mail ou senha incorretos");
+    }
+  } catch (error) {
+    console.error("Erro no login:", error);
+    Alert.alert("Erro", "Falha ao conectar com o banco de dados.");
+  }
+}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -67,7 +81,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.buttonText}>ENTRAR</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <TouchableOpacity onPress={() => navigation.navigate("Register")}>
           <Text style={styles.linkText}>
             Novo por aqui? <Text style={styles.highlight}>Crie uma conta</Text>
           </Text>
@@ -78,12 +92,32 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  content: { flex: 1, justifyContent: 'center', padding: 30 },
-  logo: { color: '#E67E22', fontSize: 32, fontWeight: 'bold', textAlign: 'center', letterSpacing: 4, marginBottom: 50 },
-  input: { backgroundColor: '#1A1A1A', color: 'white', padding: 18, borderRadius: 12, marginBottom: 15, fontSize: 16 },
-  button: { backgroundColor: '#E67E22', padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-  linkText: { color: '#888', textAlign: 'center', marginTop: 25 },
-  highlight: { color: '#E67E22', fontWeight: 'bold' }
+  container: { flex: 1, backgroundColor: "#000" },
+  content: { flex: 1, justifyContent: "center", padding: 30 },
+  logo: {
+    color: "#E67E22",
+    fontSize: 32,
+    fontWeight: "bold",
+    textAlign: "center",
+    letterSpacing: 4,
+    marginBottom: 50,
+  },
+  input: {
+    backgroundColor: "#1A1A1A",
+    color: "white",
+    padding: 18,
+    borderRadius: 12,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: "#E67E22",
+    padding: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: { color: "white", fontWeight: "bold", fontSize: 16 },
+  linkText: { color: "#888", textAlign: "center", marginTop: 25 },
+  highlight: { color: "#E67E22", fontWeight: "bold" },
 });

@@ -40,7 +40,12 @@ export async function initializeDatabase(database) {
       FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
-
+// Exemplo de como inserir no seu arquivo de banco de dados:
+await database.execAsync(`
+  INSERT OR IGNORE INTO users (name, email, password) 
+  VALUES ('Administrador', 'admin@eliteevo.com', 'admin123');
+  VALUES ('Usuario', 'mathias@eliteevo.com', '123456');
+`);
     // Adiciona coluna profileImage em bancos já existentes
   try {
     await database.execAsync(`ALTER TABLE users ADD COLUMN profileImage TEXT;`);
