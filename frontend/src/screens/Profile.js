@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert 
+import {
+  View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { 
-  Ionicons, 
-  MaterialCommunityIcons 
+import {
+  Ionicons,
+  MaterialCommunityIcons
 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -77,14 +77,14 @@ export default function ProfileScreen() {
   const handleLogout = () => {
     Alert.alert('Sair da Conta', 'Deseja realmente sair do Elite Evo?', [
       { text: 'Cancelar', style: 'cancel' },
-      { 
-        text: 'Sair', 
-        style: 'destructive', 
+      {
+        text: 'Sair',
+        style: 'destructive',
         onPress: () => {
           setUser(null);
           setIsLoggedIn(false);
-          
-        } 
+
+        }
       },
     ]);
   };
@@ -94,10 +94,10 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        
+
         {/* Header Superior */}
         <View style={styles.header}>
-          <View style={{ width: 24 }} /> 
+          <View style={{ width: 24 }} />
           <Text style={styles.brand}>ELITE EVO</Text>
           <TouchableOpacity onPress={() => Alert.alert("Configurações", "Em breve...")}>
             <Ionicons name="settings-outline" size={22} color="white" />
@@ -107,18 +107,18 @@ export default function ProfileScreen() {
         {/* Foto de Perfil Dinâmica */}
         <View style={styles.profileSection}>
           <View style={styles.avatarWrapper}>
-            <Image 
-              source={profileImage ? { uri: profileImage } : { uri: fallbackAvatar }} 
-              style={styles.avatar} 
+            <Image
+              source={profileImage ? { uri: profileImage } : { uri: fallbackAvatar }}
+              style={styles.avatar}
             />
-            <TouchableOpacity 
-              style={styles.editBtn} 
+            <TouchableOpacity
+              style={styles.editBtn}
               onPress={pickImage}
             >
               <Ionicons name="pencil" size={14} color="white" />
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.userName}>{user?.name || 'Usuário'}</Text>
           <Text style={styles.userSub}>{user?.email || 'Membro Elite'}</Text>
         </View>
@@ -142,10 +142,10 @@ export default function ProfileScreen() {
         {/* Menu List */}
         <View style={styles.menuContainer}>
           <MenuItem icon="package-variant-closed" label="Meus Pedidos" />
-          <MenuItem icon="map-marker-outline" label="Endereços" />
+          <MenuItem icon="map-marker-outline" label="Endereços" onPress={() => navigation.navigate('Addresses')} />
           <MenuItem icon="credit-card-outline" label="Pagamentos" />
           <MenuItem icon="bell-outline" label="Notificações" badge={cartCount > 0 ? `${cartCount} NO CARRINHO` : null} />
-          
+
           <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
             <View style={styles.menuLeft}>
               <View style={styles.iconCircleLogout}>

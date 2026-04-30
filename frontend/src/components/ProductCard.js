@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ToastAndroid, Platform, Alert } fr
 import { ShoppingCart, Star } from 'lucide-react-native';
 import { useDispatch } from 'react-redux';
 import { addItem } from '../store/cartSlice';
-import { styles } from '../screens/HomeStyles';
+import { styles } from '../../../src/screens/HomeStyles';
 
 
 const images = {
@@ -29,8 +29,8 @@ export function ProductCard({ data }) {
 
   const handleAdd = () => {
     dispatch(addItem(data));
-    
-    
+
+
     if (Platform.OS === 'android') {
       ToastAndroid.show(`${data.name} adicionado ao carrinho!`, ToastAndroid.SHORT);
     } else {
@@ -40,19 +40,19 @@ export function ProductCard({ data }) {
 
   return (
     <View style={styles.productCard}>
-      
+
       {data.tag && (
         <View style={[styles.tag, { backgroundColor: data.tag === 'ESGOTADO' ? '#333' : '#FF6B00' }]}>
           <Text style={styles.tagText}>{data.tag}</Text>
         </View>
       )}
 
-      
+
       <View style={styles.imagePlaceholder}>
-        <Image 
+        <Image
           source={images[data.image] || require('../../assets/whey_isolate.png')} // Fallback se a chave falhar
-          style={{ width: '100%', height: '100%' }} 
-          resizeMode="contain" 
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="contain"
         />
       </View>
 
@@ -67,15 +67,15 @@ export function ProductCard({ data }) {
             )}
             <Text style={styles.productPrice}>R$ {data.price.toFixed(2).replace('.', ',')}</Text>
           </View>
-          
+
           <View style={styles.ratingBadge}>
             <Star color="#FFB800" fill="#FFB800" size={12} />
             <Text style={styles.ratingText}>{data.rating}</Text>
           </View>
         </View>
 
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.addToCartBtn}
           onPress={handleAdd}
         >

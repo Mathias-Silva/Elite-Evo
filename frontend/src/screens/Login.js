@@ -44,9 +44,9 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.content}>
         <Text style={styles.logo}>ELITE EVO</Text>
 
-        <TextInput 
-          style={styles.input} 
-          placeholder="E-mail" 
+        <TextInput
+          style={styles.input}
+          placeholder="E-mail"
           placeholderTextColor="#666"
           keyboardType="email-address"
           autoCapitalize="none"
@@ -54,11 +54,11 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setEmail}
         />
 
-        <TextInput 
-          style={styles.input} 
-          placeholder="Senha" 
+        <TextInput
+          style={styles.input}
+          placeholder="Senha"
           placeholderTextColor="#666"
-          secureTextEntry 
+          secureTextEntry
           value={password}
           onChangeText={setPassword}
         />

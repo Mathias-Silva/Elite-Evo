@@ -121,11 +121,28 @@ const CartItem = ({ item }) => {
 };
 // -----------------------------------------------------------
 
+import { useAuth } from '../context/AuthContext';
+
 export default function Cart() {
   const navigation = useNavigation();
- 
-  
+  const { isLoggedIn } = useAuth();
   const { items, totalAmount } = useSelector((state) => state.cart);
+
+  const handleCheckout = () => {
+    if (!isLoggedIn) {
+      Alert.alert(
+        'Acesso Negado',
+        'Você precisa estar logado para finalizar a compra.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Fazer Login', onPress: () => navigation.navigate('Perfil') }
+        ]
+      );
+      return;
+    }
+    // TODO: Ajuste ao criar o CartStackNavigator
+    navigation.navigate('CheckoutAddress');
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -153,7 +170,7 @@ export default function Cart() {
                 R$ {totalAmount.toFixed(2).replace('.', ',')}
               </Text>
             </View>
-            <TouchableOpacity style={styles.checkoutBtn}>
+            <TouchableOpacity style={styles.checkoutBtn} onPress={handleCheckout}>
               <Text style={styles.checkoutText}>Finalizar Compra</Text>
             </TouchableOpacity>
           </View>

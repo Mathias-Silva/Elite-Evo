@@ -1,28 +1,51 @@
 import React from 'react';
-import { Platform } from 'react-native'; // Importado para detectar o sistema
-import { NavigationContainer } from '@react-navigation/native';
+import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SQLiteProvider } from 'expo-sqlite';
 import { Home as HomeIcon, Grid, Heart, User, ShoppingCart } from 'lucide-react-native';
-import Home from './src/screens/Home';
-import Catalog from './src/screens/Catalog';
-import Favorites from './src/screens/Favorites';
-import Profile from './src/screens/Profile';
-import Cart from './src/screens/Cart';
-import AuthHomeScreen from './src/screens/AuthHome';
-import LoginScreen from './src/screens/Login';
-import RegisterScreen from './src/screens/Register';
 
-import { Provider } from 'react-redux'; 
-import { store } from './src/store'; 
+// Screens
+import Home from '../screens/Home';
+import Catalog from '../screens/Catalog';
+import Favorites from '../screens/Favorites';
+import Profile from '../screens/Profile';
+import Cart from '../screens/Cart';
+import AuthHomeScreen from '../screens/AuthHome';
+import LoginScreen from '../screens/Login';
+import RegisterScreen from '../screens/Register';
+import AddressesScreen from '../screens/Addresses';
+import AddressFormScreen from '../screens/AddressForm';
+import CheckoutAddressScreen from '../screens/CheckoutAddress';
+import PaymentScreen from '../screens/Payment';
 
-import { initializeDatabase } from './src/database/initializeDatabase';
-import { AuthProvider, useAuth } from './src/context/AuthContext';
+// Context
+import { useAuth } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
-
 const AuthStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator();
+const CartStack = createNativeStackNavigator();
+
+function CartStackNavigator() {
+  return (
+    <CartStack.Navigator screenOptions={{ headerShown: false }}>
+      <CartStack.Screen name="CartMain" component={Cart} />
+      <CartStack.Screen name="CheckoutAddress" component={CheckoutAddressScreen} />
+      <CartStack.Screen name="AddressForm" component={AddressFormScreen} />
+      <CartStack.Screen name="Payment" component={PaymentScreen} />
+    </CartStack.Navigator>
+  );
+}
+
+function ProfileStackNavigator() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="ProfileMain" component={Profile} />
+      <ProfileStack.Screen name="Addresses" component={AddressesScreen} />
+      <ProfileStack.Screen name="AddressForm" component={AddressFormScreen} />
+    </ProfileStack.Navigator>
+  );
+}
 
 function AuthStackNavigator() {
   return (
@@ -38,13 +61,12 @@ function PerfilTabScreen() {
   const { isLoggedIn } = useAuth();
 
   if (isLoggedIn) {
-    return <Profile />;
+    return <ProfileStackNavigator />;
   }
   return <AuthStackNavigator />;
 }
 
-
-function TabNavigator() {
+export default function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -84,7 +106,7 @@ function TabNavigator() {
       
       <Tab.Screen 
         name="Cart" 
-        component={Cart} 
+        component={CartStackNavigator} 
         options={{ 
           title: 'Carrinho',
           tabBarIcon: ({ color }) => <ShoppingCart color={color} size={24} />,
@@ -108,19 +130,5 @@ function TabNavigator() {
         }}
       />
     </Tab.Navigator>
-  );
-}
-
-export default function App() {
-  return (
-    <Provider store={store}>
-    <SQLiteProvider databaseName="eliteEvo.db" onInit={initializeDatabase}>
-       <AuthProvider>
-          <NavigationContainer>
-            <TabNavigator />
-          </NavigationContainer>
-        </AuthProvider>
-    </SQLiteProvider>
-    </Provider>
   );
 }

@@ -26,6 +26,21 @@ export async function initializeDatabase(database) {
     );
   `);
 
+    await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS addresses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER NOT NULL,
+      zipCode TEXT NOT NULL,
+      street TEXT NOT NULL,
+      number TEXT NOT NULL,
+      complement TEXT,
+      neighborhood TEXT NOT NULL,
+      city TEXT NOT NULL,
+      state TEXT NOT NULL,
+      FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
+
     // Adiciona coluna profileImage em bancos já existentes
   try {
     await database.execAsync(`ALTER TABLE users ADD COLUMN profileImage TEXT;`);

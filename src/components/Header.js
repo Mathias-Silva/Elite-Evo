@@ -1,1 +1,0 @@
-//# Logo e ícones superiores
