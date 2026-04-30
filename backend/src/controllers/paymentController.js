@@ -2,7 +2,7 @@ const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 // O ideal é colocar a chave no arquivo .env (process.env.MP_ACCESS_TOKEN)
 // Para testes locais, substitua a string abaixo pelo seu Access Token de Teste
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || 'APP_USR-1153690183407520-043002-39ea67532e1b704df2730400e8b729bf-3369360460' });
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 exports.createPreference = async (req, res) => {
   try {
