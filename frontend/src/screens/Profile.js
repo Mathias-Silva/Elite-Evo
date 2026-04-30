@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert
+  View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert, Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -11,6 +11,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuth } from '../context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
+import * as Sharing from 'expo-sharing';
+import { cacheDirectory, writeAsStringAsync } from 'expo-file-system/legacy';
 import { useSelector } from 'react-redux';
 
 export default function ProfileScreen() {
@@ -71,6 +73,80 @@ export default function ProfileScreen() {
       const uri = result.assets[0].uri;
       setProfileImage(uri);
       await saveProfileImage(uri);
+    }
+  }
+
+  function downloadJsonOnWeb(filename, jsonText) {
+    if (typeof document === 'undefined') return false;
+    const blob = new Blob([jsonText], {
+      type: 'application/json;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    return true;
+  }
+
+  async function exportDatabaseAsJson() {
+    try {
+      const products = await db.getAllAsync('SELECT * FROM products');
+      const users = await db.getAllAsync(
+        'SELECT id, name, email, profileImage FROM users'
+      );
+      const addresses = await db.getAllAsync('SELECT * FROM addresses');
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        tables: {
+          products,
+          users,
+          addresses,
+        },
+      };
+      const json = JSON.stringify(payload, null, 2);
+      const fileName = `eliteevo-db-${Date.now()}.json`;
+
+      if (Platform.OS === 'web') {
+        if (!downloadJsonOnWeb(fileName, json)) {
+          throw new Error('Download não disponível neste ambiente.');
+        }
+        return;
+      }
+
+      const dir = cacheDirectory;
+      if (!dir) {
+        Alert.alert(
+          'Exportação',
+          'Este dispositivo não expõe uma pasta temporária para gerar o arquivo.'
+        );
+        return;
+      }
+
+      const uri = `${dir}${fileName}`;
+      await writeAsStringAsync(uri, json);
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/json',
+          dialogTitle: 'Salvar exportação (.json)',
+          UTI: 'public.json',
+        });
+      } else {
+        Alert.alert(
+          'Arquivo criado',
+          `O arquivo ${fileName} foi gerado, mas não há recurso para exportá‑lo neste ambiente (ex.: simulador sem compartilhamento).`,
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao exportar banco:', error);
+      Alert.alert(
+        'Exportação',
+        'Não foi possível gerar o arquivo JSON. Tente novamente.'
+      );
     }
   }
 
@@ -145,6 +221,11 @@ export default function ProfileScreen() {
           <MenuItem icon="map-marker-outline" label="Endereços" onPress={() => navigation.navigate('Addresses')} />
           <MenuItem icon="credit-card-outline" label="Pagamentos" />
           <MenuItem icon="bell-outline" label="Notificações" badge={cartCount > 0 ? `${cartCount} NO CARRINHO` : null} />
+          <MenuItem
+            icon="database-export"
+            label="Baixar banco (.json)"
+            onPress={exportDatabaseAsJson}
+          />
 
           <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
             <View style={styles.menuLeft}>
