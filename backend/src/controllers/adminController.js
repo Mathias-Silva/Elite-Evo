@@ -1,12 +1,12 @@
 
-const db = require('../config/idex'); // Supondo que você tenha a conexão com banco
+const db = require('../config/idex'); 
 
 // --- Gerenciamento de Produtos ---
 
 const createProduct = async (req, res) => {
   try {
     const { name, price, flavor, image, tag, rating } = req.body;
-    // Exemplo de Query (ajuste para o seu DB: MySQL, Postgres ou SQLite)
+
     const sql = "INSERT INTO products (name, price, flavor, image, tag, rating) VALUES (?, ?, ?, ?, ?, ?)";
     await db.run(sql, [name, price, flavor, image, tag, rating]);
     res.status(201).json({ message: 'Produto criado com sucesso' });
@@ -39,7 +39,7 @@ const getAllUsers = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    // Impede o admin de deletar a si mesmo se necessário
+  
     await db.run("DELETE FROM users WHERE id = ?", [id]);
     res.json({ message: 'Usuário removido' });
   } catch (error) {

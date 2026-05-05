@@ -24,29 +24,12 @@ import {
 } from "lucide-react-native";
 import { useAuth } from "../context/AuthContext";
 import { useSQLiteContext } from "expo-sqlite";
-import { useDispatch } from 'react-redux';
-import { removeFavorite, updateFavorite } from '../store/favoritesSlice'; // ✅ updateFavorite importado
-import { removeItem, updateItem } from '../store/cartSlice';              // ✅ updateItem importado
+import { useDispatch } from "react-redux";
+import { removeFavorite, updateFavorite } from "../store/favoritesSlice";
+import { removeItem, updateItem } from "../store/cartSlice";
+import productImages from "../utils/productImages";
 
-
-const productImages = {
-  aminoacidos_capsula: require("../assets/aminoacidos_capsula.png"),
-  aminoacidos_glutamina: require("../assets/aminoacidos_glutamina.png"),
-  aminoacidos_po: require("../assets/aminoacidos_po.png"),
-  creatina_monohidratada: require("../assets/creatina_monohidratada.png"),
-  creatina_pure: require("../assets/creatina_pure.png"),
-  creatina: require("../assets/creatina.png"),
-  hipercalorico_choco: require("../assets/hipercalorico_choco.png"),
-  hipercalorico_morango: require("../assets/hipercalorico_morango.png"),
-  multivitaminico80: require("../assets/multivitaminico80.png"),
-  multivitaminico90: require("../assets/multivitaminico90.png"),
-  pre_treino_explosion: require("../assets/pre_treino_explosion.png"),
-  pre_treino: require("../assets/pre_treino.png"),
-  whey_isolate_morango: require("../assets/whey_isolate_morango.png"),
-  whey_isolate: require("../assets/whey_isolate.png"),
-  whey_isolate1: require("../assets/whey_isolate1.png"),
-  vitaminas: require("../assets/vitaminas.png"),
-};
+productImages;
 
 export default function AdminScreen() {
   const { logout } = useAuth();
@@ -97,18 +80,23 @@ export default function AdminScreen() {
 
     try {
       const priceFormatted = parseFloat(
-        String(newProduct.price).replace(",", ".")
+        String(newProduct.price).replace(",", "."),
       );
       const tagValue = newProduct.tag === "LIMPAR" ? null : newProduct.tag;
 
       if (isEditing) {
-        // Salva no banco
         await db.runAsync(
           "UPDATE products SET name = ?, price = ?, flavor = ?, image = ?, tag = ? WHERE id = ?",
-          [newProduct.name, priceFormatted, newProduct.flavor, newProduct.image, tagValue, editingId]
+          [
+            newProduct.name,
+            priceFormatted,
+            newProduct.flavor,
+            newProduct.image,
+            tagValue,
+            editingId,
+          ],
         );
 
-        // ✅ Monta o objeto atualizado com o id
         const updatedProduct = {
           id: editingId,
           name: newProduct.name,
@@ -118,16 +106,20 @@ export default function AdminScreen() {
           tag: tagValue,
         };
 
-        // ✅ Atualiza no Redux sem remover — carrinho mantém quantidade, favoritos mantêm o item
         dispatch(updateItem(updatedProduct));
         dispatch(updateFavorite(updatedProduct));
 
         Alert.alert("Sucesso", "Produto atualizado!");
       } else {
-        // Cadastro novo
         await db.runAsync(
           "INSERT INTO products (name, price, flavor, image, tag) VALUES (?, ?, ?, ?, ?)",
-          [newProduct.name, priceFormatted, newProduct.flavor, newProduct.image, tagValue]
+          [
+            newProduct.name,
+            priceFormatted,
+            newProduct.flavor,
+            newProduct.image,
+            tagValue,
+          ],
         );
         Alert.alert("Sucesso", "Produto cadastrado!");
       }
@@ -165,21 +157,21 @@ export default function AdminScreen() {
         text: "Excluir",
         onPress: async () => {
           try {
-            if (tab === 'products') {
-              await db.runAsync('DELETE FROM products WHERE id = ?', [id]);
+            if (tab === "products") {
+              await db.runAsync("DELETE FROM products WHERE id = ?", [id]);
               // ✅ Na exclusão sim, remove do carrinho e favoritos
               dispatch(removeItem(id));
               dispatch(removeFavorite({ id }));
               Alert.alert("Sucesso", "Produto removido do banco e do cache.");
             } else {
-              await db.runAsync('DELETE FROM users WHERE id = ?', [id]);
+              await db.runAsync("DELETE FROM users WHERE id = ?", [id]);
             }
             fetchData();
           } catch (error) {
             Alert.alert("Erro", "Não foi possível excluir.");
           }
-        }
-      }
+        },
+      },
     ]);
   };
 
@@ -387,22 +379,37 @@ export default function AdminScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 20,
     alignItems: "center",
   },
-  title: { color: "#FFF", fontSize: 24, fontWeight: "bold" },
+  title: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
   subtitle: {
     color: "#FF6B00",
     fontSize: 12,
     fontWeight: "bold",
     letterSpacing: 1,
   },
-  logoutBtn: { padding: 8, backgroundColor: "#1A1A1A", borderRadius: 10 },
-  tabBar: { flexDirection: "row", paddingHorizontal: 20, marginBottom: 15 },
+  logoutBtn: {
+    padding: 8,
+    backgroundColor: "#1A1A1A",
+    borderRadius: 10,
+  },
+  tabBar: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    marginBottom: 15,
+  },
   tab: {
     flex: 1,
     flexDirection: "row",
@@ -412,17 +419,32 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "#1A1A1A",
   },
-  activeTab: { borderBottomColor: "#FF6B00" },
-  tabText: { color: "#666", marginLeft: 8, fontWeight: "bold", fontSize: 13 },
-  activeTabText: { color: "#FFF" },
-  content: { flex: 1, paddingHorizontal: 20 },
+  activeTab: {
+    borderBottomColor: "#FF6B00",
+  },
+  tabText: {
+    color: "#666",
+    marginLeft: 8,
+    fontWeight: "bold",
+    fontSize: 13,
+  },
+  activeTabText: {
+    color: "#FFF",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
   addArea: {
     marginBottom: 20,
     backgroundColor: "#1A1A1A",
     padding: 15,
     borderRadius: 15,
   },
-  editAreaBorder: { borderWidth: 1, borderColor: "#28a745" },
+  editAreaBorder: {
+    borderWidth: 1,
+    borderColor: "#28a745",
+  },
   formTitle: {
     color: "#FFF",
     fontWeight: "bold",
@@ -434,7 +456,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  row: { flexDirection: "row", gap: 10 },
+  row: {
+    flexDirection: "row",
+    gap: 10,
+  },
   input: {
     backgroundColor: "#0A0A0A",
     color: "#FFF",
@@ -444,8 +469,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#333",
   },
-  label: { color: "#888", fontSize: 12, marginBottom: 8, marginLeft: 2 },
-  tagScroll: { marginBottom: 15 },
+  label: {
+    color: "#888",
+    fontSize: 12,
+    marginBottom: 8,
+    marginLeft: 2,
+  },
+  tagScroll: {
+    marginBottom: 15,
+  },
   tagOption: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -455,8 +487,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#333",
   },
-  tagSelected: { backgroundColor: "#FF6B00", borderColor: "#FF6B00" },
-  tagOptionText: { color: "#888", fontSize: 10, fontWeight: "bold" },
+  tagSelected: {
+    backgroundColor: "#FF6B00",
+    borderColor: "#FF6B00",
+  },
+  tagOptionText: {
+    color: "#888",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
   addButton: {
     backgroundColor: "#FF6B00",
     flexDirection: "row",
@@ -466,7 +505,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 5,
   },
-  addButtonText: { color: "#FFF", fontWeight: "bold", marginLeft: 8 },
+  addButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
   listItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -481,21 +524,37 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#000",
   },
-  itemName: { color: "#FFF", fontWeight: "bold", fontSize: 14 },
+  itemName: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
   itemBadgeRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     marginTop: 4,
   },
-  itemPrice: { color: "#888", fontSize: 12 },
+  itemPrice: {
+    color: "#888",
+    fontSize: 12,
+  },
   tagBadge: {
     backgroundColor: "#FF6B0022",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
-  tagBadgeText: { color: "#FF6B00", fontSize: 9, fontWeight: "bold" },
-  actions: { flexDirection: "row", gap: 10 },
-  actionIcon: { padding: 5 },
+  tagBadgeText: {
+    color: "#FF6B00",
+    fontSize: 9,
+    fontWeight: "bold",
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  actionIcon: {
+    padding: 5,
+  },
 });

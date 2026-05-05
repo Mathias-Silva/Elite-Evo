@@ -18,40 +18,38 @@ export default function LoginScreen({ navigation }) {
   const db = useSQLiteContext();
   const { setIsLoggedIn, setUser } = useAuth();
 
- async function handleLogin() {
-  Keyboard.dismiss();
+  async function handleLogin() {
+    Keyboard.dismiss();
 
-  if (!email || !password) {
-    Alert.alert("Erro", "Preencha e-mail e senha");
-    return;
-  }
-
-  try {
-    // Busca o usuário
-    const userFound = await db.getFirstAsync(
-      "SELECT id, name, email FROM users WHERE email = ? COLLATE NOCASE AND password = ?",
-      [email.trim(), password]
-    );
-
-    if (userFound) {
-      setUser(userFound);
-      setIsLoggedIn(true);
-
-      // Checa se é admin
-      if (userFound.email.toLowerCase() === "admin@eliteevo.com") {
-        Alert.alert("Sucesso", "Acessando Painel Administrativo");
-        navigation.replace("AdminScreen"); 
-      } else {
-        navigation.replace("AuthHome");
-      }
-    } else {
-      Alert.alert("Erro", "E-mail ou senha incorretos");
+    if (!email || !password) {
+      Alert.alert("Erro", "Preencha e-mail e senha");
+      return;
     }
-  } catch (error) {
-    console.error("Erro no login:", error);
-    Alert.alert("Erro", "Falha ao conectar com o banco de dados.");
+
+    try {
+      const userFound = await db.getFirstAsync(
+        "SELECT id, name, email FROM users WHERE email = ? COLLATE NOCASE AND password = ?",
+        [email.trim(), password],
+      );
+
+      if (userFound) {
+        setUser(userFound);
+        setIsLoggedIn(true);
+
+        if (userFound.email.toLowerCase() === "admin@eliteevo.com") {
+          Alert.alert("Sucesso", "Acessando Painel Administrativo");
+          navigation.replace("AdminScreen");
+        } else {
+          navigation.replace("AuthHome");
+        }
+      } else {
+        Alert.alert("Erro", "E-mail ou senha incorretos");
+      }
+    } catch (error) {
+      console.error("Erro no login:", error);
+      Alert.alert("Erro", "Falha ao conectar com o banco de dados.");
+    }
   }
-}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,8 +90,15 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  content: { flex: 1, justifyContent: "center", padding: 30 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#000" 
+  },
+  content: { 
+    flex: 1, 
+    justifyContent: "center", 
+    padding: 30 
+  },
   logo: {
     color: "#E67E22",
     fontSize: 32,
@@ -117,7 +122,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-  buttonText: { color: "white", fontWeight: "bold", fontSize: 16 },
-  linkText: { color: "#888", textAlign: "center", marginTop: 25 },
-  highlight: { color: "#E67E22", fontWeight: "bold" },
+  buttonText: { 
+    color: "white", 
+    fontWeight: "bold", 
+    fontSize: 16 }
+    ,
+  linkText: { 
+    color: "#888", 
+    textAlign: "center", 
+    marginTop: 25 
+  },
+  highlight: { 
+    color: "#E67E22", 
+    fontWeight: "bold" 
+  },
 });

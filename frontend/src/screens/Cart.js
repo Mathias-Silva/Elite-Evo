@@ -16,24 +16,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { removeItem, updateQuantity } from "../store/cartSlice";
 import { useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
-const productImages = {
-  aminoacidos_capsula: require("../assets/aminoacidos_capsula.png"),
-  aminoacidos_glutamina: require("../assets/aminoacidos_glutamina.png"),
-  aminoacidos_po: require("../assets/aminoacidos_po.png"),
-  creatina_monohidratada: require("../assets/creatina_monohidratada.png"),
-  creatina_pure: require("../assets/creatina_pure.png"),
-  creatina: require("../assets/creatina.png"),
-  hipercalorico_choco: require("../assets/hipercalorico_choco.png"),
-  hipercalorico_morango: require("../assets/hipercalorico_morango.png"),
-  multivitaminico80: require("../assets/multivitaminico80.png"),
-  multivitaminico90: require("../assets/multivitaminico90.png"),
-  pre_treino_explosion: require("../assets/pre_treino_explosion.png"),
-  pre_treino: require("../assets/pre_treino.png"),
-  whey_isolate_morango: require("../assets/whey_isolate_morango.png"),
-  whey_isolate: require("../assets/whey_isolate.png"),
-  whey_isolate1: require("../assets/whey_isolate1.png"),
-  vitaminas: require("../assets/vitaminas.png"),
-};
+import { useAuth } from "../context/AuthContext";
+import productImages from "../utils/productImages";
+
+productImages;
 
 const CartItem = ({ item }) => {
   const dispatch = useDispatch();
@@ -63,7 +49,7 @@ const CartItem = ({ item }) => {
         freshData.name !== item.name ||
         freshData.price !== item.price
       ) {
-        // Se mudou no admin, atualizamos mantendo a quantidade
+       
         const qtyAtual = item.quantity;
         dispatch(removeItem(item.id));
         dispatch(addItem({ ...freshData, quantity: qtyAtual }));
@@ -157,9 +143,6 @@ const CartItem = ({ item }) => {
     </Animated.View>
   );
 };
-// -----------------------------------------------------------
-
-import { useAuth } from "../context/AuthContext";
 
 export default function Cart() {
   const navigation = useNavigation();
@@ -178,7 +161,7 @@ export default function Cart() {
       );
       return;
     }
-    // TODO: Ajuste ao criar o CartStackNavigator
+   
     navigation.navigate("CheckoutAddress");
     const validateCart = async () => {
       for (const item of cartItems) {
@@ -187,7 +170,7 @@ export default function Cart() {
           [item.id],
         );
         if (!exists) {
-          // Dispatch para remover do carrinho se não existir no banco
+       
         }
       }
     };
@@ -240,9 +223,19 @@ export default function Cart() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  headerCart: { padding: 20, paddingTop: 10 },
-  headerTitle: { color: "#FFF", fontSize: 24, fontWeight: "bold" },
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  headerCart: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  headerTitle: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
   cartItem: {
     flexDirection: "row",
     backgroundColor: "#121212",
@@ -258,17 +251,35 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 5,
   },
-  productImg: { width: "100%", height: "100%" },
-  itemDetails: { flex: 1, marginLeft: 15 },
-  itemName: { color: "#FFF", fontSize: 15, fontWeight: "bold" },
-  itemFlavor: { color: "#666", fontSize: 12, marginVertical: 4 },
+  productImg: {
+    width: "100%",
+    height: "100%",
+  },
+  itemDetails: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  itemName: {
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  itemFlavor: {
+    color: "#666",
+    fontSize: 12,
+    marginVertical: 4,
+  },
   priceQtyRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 5,
   },
-  itemPrice: { color: "#FF6B00", fontSize: 16, fontWeight: "bold" },
+  itemPrice: {
+    color: "#FF6B00",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   qtyControls: {
     flexDirection: "row",
     alignItems: "center",
@@ -276,9 +287,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 4,
   },
-  qtyBtn: { padding: 5 },
-  qtyText: { color: "#FFF", marginHorizontal: 10, fontWeight: "bold" },
-  removeBtn: { padding: 10, marginLeft: 5 },
+  qtyBtn: {
+    padding: 5,
+  },
+  qtyText: {
+    color: "#FFF",
+    marginHorizontal: 10,
+    fontWeight: "bold",
+  },
+  removeBtn: {
+    padding: 10,
+    marginLeft: 5,
+  },
   footer: {
     paddingHorizontal: 25,
     paddingTop: 20,
@@ -292,8 +312,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  totalLabel: { color: "#AAA", fontSize: 16 },
-  totalValue: { color: "#FFF", fontSize: 24, fontWeight: "bold" },
+  totalLabel: {
+    color: "#AAA",
+    fontSize: 16,
+  },
+  totalValue: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
   checkoutBtn: {
     backgroundColor: "#FF6B00",
     padding: 20,
@@ -311,8 +338,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "uppercase",
   },
-  emptyContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  emptyText: { color: "#333", fontSize: 18, marginTop: 20, fontWeight: "bold" },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#333",
+    fontSize: 18,
+    marginTop: 20,
+    fontWeight: "bold",
+  },
   backBtn: {
     marginTop: 20,
     backgroundColor: "#121212",
@@ -320,5 +356,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 12,
   },
-  backBtnText: { color: "#FF6B00", fontWeight: "bold" },
+  backBtnText: {
+    color: "#FF6B00",
+    fontWeight: "bold",
+  },
 });

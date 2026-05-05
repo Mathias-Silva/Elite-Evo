@@ -1,6 +1,11 @@
-
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 
 export const Newsletter = () => (
   <View style={styles.container}>
@@ -8,13 +13,13 @@ export const Newsletter = () => (
     <Text style={styles.subtitle}>
       Receba dicas de treino, dietas e ofertas exclusivas direto no seu e-mail.
     </Text>
-    
-    <TextInput 
-      style={styles.input} 
-      placeholder="Seu melhor e-mail" 
+
+    <TextInput
+      style={styles.input}
+      placeholder="Seu melhor e-mail"
       placeholderTextColor="rgba(255,255,255,0.7)"
     />
-    
+
     <TouchableOpacity style={styles.button}>
       <Text style={styles.buttonText}>INSCREVER</Text>
     </TouchableOpacity>
@@ -23,32 +28,48 @@ export const Newsletter = () => (
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FF6B00',
+    backgroundColor: "#FF6B00",
     margin: 20,
     borderRadius: 25,
     padding: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  title: { color: '#FFF', fontSize: 22, fontWeight: '900', textAlign: 'center', marginBottom: 10 },
-  subtitle: { color: '#FFF', fontSize: 13, textAlign: 'center', marginBottom: 20, lineHeight: 18 },
+  title: {
+    color: "#FFF",
+    fontSize: 22,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  subtitle: {
+    color: "#FFF",
+    fontSize: 13,
+    textAlign: "center",
+    marginBottom: 20,
+    lineHeight: 18,
+  },
   input: {
-    width: '100%',
+    width: "100%",
     height: 50,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 25,
     paddingHorizontal: 20,
-    color: '#FFF',
+    color: "#FFF",
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: "rgba(255,255,255,0.3)",
   },
   button: {
-    width: '100%',
+    width: "100%",
     height: 50,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-  buttonText: { color: '#FF6B00', fontWeight: 'bold', fontSize: 14 },
+  buttonText: { 
+    color: "#FF6B00", 
+    fontWeight: "bold", 
+    fontSize: 14 
+  },
 });

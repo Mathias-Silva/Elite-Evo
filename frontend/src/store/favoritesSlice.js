@@ -20,7 +20,7 @@ const favoritesSlice = createSlice({
       state.items = state.items.filter(item => item.id !== targetId);
     },
 
-    // ✅ NOVO: atualiza dados do produto nos favoritos sem removê-lo
+
     updateFavorite: (state, action) => {
       const updatedProduct = action.payload;
       const index = state.items.findIndex(item => item.id === updatedProduct.id);

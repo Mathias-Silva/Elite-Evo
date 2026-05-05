@@ -6,23 +6,12 @@ import { addItem } from '../store/cartSlice';
 import { styles } from '../../../src/screens/HomeStyles';
 
 
-const images = {
-  'aminoacidos_capsula': require('../assets/aminoacidos_capsula.png'),
-  'aminoacidos_glutamina': require('../assets/aminoacidos_glutamina.png'),
-  'aminoacidos_po': require('../assets/aminoacidos_po.png'),
-  'creatina_monohidratada': require('../assets/creatina_monohidratada.png'),
-  'creatina_pure': require('../assets/creatina_pure.png'),
-  'creatina': require('../assets/creatina.png'),
-  'hipercalorico_choco': require('../assets/hipercalorico_choco.png'),
-  'hipercalorico_morango': require('../assets/hipercalorico_morango.png'),
-  'multivitaminico80': require('../assets/multivitaminico80.png'),
-  'multivitaminico90': require('../assets/multivitaminico90.png'),
-  'pre_treino_explosion': require('../assets/pre_treino_explosion.png'),
-  'pre_treino': require('../assets/pre_treino.png'),
-  'whey_isolate_morango': require('../assets/whey_isolate_morango.png'),
-  'whey_isolate': require('../assets/whey_isolate.png'),
-  'whey_isolate1': require('../assets/whey_isolate1.png'),
-};
+
+import productImages from "../utils/productImages";
+
+productImages
+
+
 
 export function ProductCard({ data }) {
   const dispatch = useDispatch();
@@ -50,7 +39,7 @@ export function ProductCard({ data }) {
 
       <View style={styles.imagePlaceholder}>
         <Image
-          source={images[data.image] || require('../../assets/whey_isolate.png')} // Fallback se a chave falhar
+          source={productImages[data.image] || require('../../assets/whey_isolate.png')} // Fallback se a chave falhar
           style={{ width: '100%', height: '100%' }}
           resizeMode="contain"
         />

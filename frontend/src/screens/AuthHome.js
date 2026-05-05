@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AuthHomeScreen({ navigation }) {
   return (
@@ -27,10 +28,30 @@ export default function AuthHomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  content: { flex: 1, justifyContent: 'center', padding: 30, alignItems: 'center' },
-  logo: { color: '#E67E22', fontSize: 42, fontWeight: 'bold', letterSpacing: 4 },
-  subtitle: { color: '#888', fontSize: 16, marginBottom: 50, textAlign: 'center' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#000' 
+  },
+  content: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    padding: 30, 
+    alignItems: 'center' 
+  },
+  logo: { 
+    color: '#E67E22', 
+    fontSize: 42, 
+    fontWeight: 'bold', 
+    letterSpacing: 4 
+
+  },
+  subtitle: { 
+    color: '#888', 
+    fontSize: 16, 
+    marginBottom: 50, 
+    textAlign: 'center' 
+
+  },
   loginButton: { 
     backgroundColor: '#E67E22', 
     width: '100%', 
@@ -39,7 +60,12 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     marginBottom: 15 
   },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+  buttonText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+
+  },
   registerButton: { 
     borderWidth: 2, 
     borderColor: '#E67E22', 

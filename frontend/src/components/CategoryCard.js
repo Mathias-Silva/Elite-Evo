@@ -14,7 +14,7 @@ export function CategoryCard({ title, image, fullWidth }) {
         resizeMode="cover"
       >
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.6)']} // Gradiente do meio para baixo
+          colors={['transparent', 'rgba(0,0,0,0.6)']} 
           style={styles.gradient}
         >
           <Text style={styles.title}>{title}</Text>

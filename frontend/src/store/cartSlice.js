@@ -29,7 +29,7 @@ const cartSlice = createSlice({
       );
     },
 
-    // ✅ NOVO: atualiza dados do produto preservando a quantidade já no carrinho
+  
     updateItem: (state, action) => {
       const updatedProduct = action.payload;
       const existing = state.items.find(item => item.id === updatedProduct.id);
