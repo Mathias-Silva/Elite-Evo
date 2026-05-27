@@ -5,11 +5,10 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-
+import {SafeAreaView} from "react-native-safe-area-context";
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

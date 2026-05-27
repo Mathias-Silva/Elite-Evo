@@ -26,7 +26,7 @@ import AddressFormScreen from "../screens/AddressForm";
 import CheckoutAddressScreen from "../screens/CheckoutAddress";
 import PaymentScreen from "../screens/Payment";
 import AdminScreen from "../screens/AdminScreen";
-
+import ForgotPasswordScreen from "../screens/ForgotPassword";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -64,6 +64,7 @@ function AuthStackNavigator() {
       <AuthStack.Screen name="AuthHome" component={AuthHomeScreen} />
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <AuthStack.Screen name="AdminScreen" component={AdminScreen} />
       <AuthStack.Screen name="Favorites" component={Favorites} />
     </AuthStack.Navigator>

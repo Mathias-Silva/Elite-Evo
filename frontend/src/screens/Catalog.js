@@ -10,6 +10,8 @@ import {
   StyleSheet,
   Platform,
   Dimensions,
+  ToastAndroid,
+  Alert,        
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSQLiteContext } from "expo-sqlite";
@@ -62,15 +64,27 @@ export default function Catalog() {
     return products.filter((p) => p.name.toLowerCase().includes(q));
   }, [products, searchQuery]);
 
+const showToast = (message) => {
+    if (Platform.OS === "android") {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+    } else {
+      // Feedback rápido para usuários iOS
+      Alert.alert("Sucesso", message, [{ text: "OK", style: "default" }], { cancelable: true });
+    }
+  };
+
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
+    showToast(`${product.name} adicionado ao carrinho!`);
   };
 
   const handleToggleFavorite = (product) => {
     if (favoriteIds.has(product.id)) {
       dispatch(removeFavorite(product.id));
+      showToast(`${product.name} removido dos favoritos.`);
     } else {
       dispatch(addFavorite(product));
+      showToast(`${product.name} adicionado aos favoritos!`);
     }
   };
 

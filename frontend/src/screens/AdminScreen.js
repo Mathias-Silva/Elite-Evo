@@ -10,6 +10,7 @@ import {
   ScrollView,
   Keyboard,
   Image,
+  Platform, 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -29,10 +30,9 @@ import { removeFavorite, updateFavorite } from "../store/favoritesSlice";
 import { removeItem, updateItem } from "../store/cartSlice";
 import productImages from "../utils/productImages";
 
-productImages;
-
 export default function AdminScreen() {
-  const { logout } = useAuth();
+  // Ajustado para usar a função global de logout e puxar as informações do admin logado
+ const { setIsLoggedIn, setUser, user } = useAuth();
   const db = useSQLiteContext();
   const dispatch = useDispatch();
   const [tab, setTab] = useState("products");
@@ -49,6 +49,43 @@ export default function AdminScreen() {
   });
 
   const tagsDisponiveis = ["NOVIDADE", "PROMO", "ESGOTADO", "TOP 1", "LIMPAR"];
+
+  // Função auxiliar de Alerta universal (Web / Mobile)
+  const mostrarAlerta = (titulo, mensagem, acoes = null) => {
+    if (Platform.OS === "web") {
+      if (acoes) {
+        const confirmar = window.confirm(`${titulo}\n\n${mensagem}`);
+        if (confirmar) acoes[1].onPress();
+      } else {
+        window.alert(`${titulo}: ${mensagem}`);
+      }
+    } else {
+      if (acoes) {
+        Alert.alert(titulo, mensagem, acoes);
+      } else {
+        Alert.alert(titulo, mensagem);
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    mostrarAlerta(
+      "Sair da Conta", 
+      "Deseja realmente sair do Elite Evo?", 
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Sair",
+          style: "destructive",
+          onPress: () => {
+            setUser(null);
+            setIsLoggedIn(false);
+            
+          },
+        },
+      ]
+    );
+  };
 
   useEffect(() => {
     fetchData();
@@ -74,7 +111,7 @@ export default function AdminScreen() {
 
   const handleSaveProduct = async () => {
     if (!newProduct.name || !newProduct.price) {
-      Alert.alert("Erro", "Nome e Preço são obrigatórios");
+      mostrarAlerta("Erro", "Nome e Preço são obrigatórios");
       return;
     }
 
@@ -109,7 +146,7 @@ export default function AdminScreen() {
         dispatch(updateItem(updatedProduct));
         dispatch(updateFavorite(updatedProduct));
 
-        Alert.alert("Sucesso", "Produto atualizado!");
+        mostrarAlerta("Sucesso", "Produto atualizado!");
       } else {
         await db.runAsync(
           "INSERT INTO products (name, price, flavor, image, tag) VALUES (?, ?, ?, ?, ?)",
@@ -121,13 +158,13 @@ export default function AdminScreen() {
             tagValue,
           ],
         );
-        Alert.alert("Sucesso", "Produto cadastrado!");
+        mostrarAlerta("Sucesso", "Produto cadastrado!");
       }
 
       resetForm();
       fetchData();
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível salvar o produto.");
+      mostrarAlerta("Erro", "Não foi possível salvar o produto.");
     }
   };
 
@@ -150,29 +187,39 @@ export default function AdminScreen() {
     Keyboard.dismiss();
   };
 
-  const handleDelete = async (id) => {
-    Alert.alert("Confirmar", "Deseja excluir este item?", [
-      { text: "Cancelar" },
-      {
-        text: "Excluir",
-        onPress: async () => {
-          try {
-            if (tab === "products") {
-              await db.runAsync("DELETE FROM products WHERE id = ?", [id]);
-              // ✅ Na exclusão sim, remove do carrinho e favoritos
-              dispatch(removeItem(id));
-              dispatch(removeFavorite({ id }));
-              Alert.alert("Sucesso", "Produto removido do banco e do cache.");
-            } else {
-              await db.runAsync("DELETE FROM users WHERE id = ?", [id]);
+  const handleDelete = async (targetId, targetEmail) => {
+    // 🛑 REGRA DE SEGURANÇA: Impede o Admin de se auto-excluir
+    if (tab === "users" && (targetId === user?.id || targetEmail?.toLowerCase() === "admin@eliteevo.com")) {
+      mostrarAlerta("Ação Negada", "Você não pode excluir a sua própria conta de Administrador.");
+      return;
+    }
+
+    mostrarAlerta(
+      "Confirmar", 
+      "Deseja excluir este item?", 
+      [
+        { text: "Cancelar" },
+        {
+          text: "Excluir",
+          onPress: async () => {
+            try {
+              if (tab === "products") {
+                await db.runAsync("DELETE FROM products WHERE id = ?", [targetId]);
+                dispatch(removeItem(targetId));
+                dispatch(removeFavorite({ id: targetId }));
+                mostrarAlerta("Sucesso", "Produto removido do banco e do cache.");
+              } else {
+                await db.runAsync("DELETE FROM users WHERE id = ?", [targetId]);
+                mostrarAlerta("Sucesso", "Usuário removido com sucesso.");
+              }
+              fetchData();
+            } catch (error) {
+              mostrarAlerta("Erro", "Não foi possível excluir.");
             }
-            fetchData();
-          } catch (error) {
-            Alert.alert("Erro", "Não foi possível excluir.");
-          }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   return (
@@ -182,7 +229,7 @@ export default function AdminScreen() {
           <Text style={styles.title}>Painel Admin</Text>
           <Text style={styles.subtitle}>Elite Evo Gestão</Text>
         </View>
-        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <LogOut color="#FF6B00" size={24} />
         </TouchableOpacity>
       </View>
@@ -365,7 +412,7 @@ export default function AdminScreen() {
                 )}
                 <TouchableOpacity
                   style={styles.actionIcon}
-                  onPress={() => handleDelete(item.id)}
+                  onPress={() => handleDelete(item.id, item.email)}
                 >
                   <Trash2 color="#FF4444" size={20} />
                 </TouchableOpacity>
@@ -378,183 +425,39 @@ export default function AdminScreen() {
   );
 }
 
+// ... Estilos originais mantidos abaixo
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 20,
-    alignItems: "center",
-  },
-  title: {
-    color: "#FFF",
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    color: "#FF6B00",
-    fontSize: 12,
-    fontWeight: "bold",
-    letterSpacing: 1,
-  },
-  logoutBtn: {
-    padding: 8,
-    backgroundColor: "#1A1A1A",
-    borderRadius: 10,
-  },
-  tabBar: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    marginBottom: 15,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: "#1A1A1A",
-  },
-  activeTab: {
-    borderBottomColor: "#FF6B00",
-  },
-  tabText: {
-    color: "#666",
-    marginLeft: 8,
-    fontWeight: "bold",
-    fontSize: 13,
-  },
-  activeTabText: {
-    color: "#FFF",
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  addArea: {
-    marginBottom: 20,
-    backgroundColor: "#1A1A1A",
-    padding: 15,
-    borderRadius: 15,
-  },
-  editAreaBorder: {
-    borderWidth: 1,
-    borderColor: "#28a745",
-  },
-  formTitle: {
-    color: "#FFF",
-    fontWeight: "bold",
-    marginBottom: 10,
-    fontSize: 16,
-  },
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  row: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  input: {
-    backgroundColor: "#0A0A0A",
-    color: "#FFF",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  label: {
-    color: "#888",
-    fontSize: 12,
-    marginBottom: 8,
-    marginLeft: 2,
-  },
-  tagScroll: {
-    marginBottom: 15,
-  },
-  tagOption: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "#0A0A0A",
-    borderRadius: 8,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  tagSelected: {
-    backgroundColor: "#FF6B00",
-    borderColor: "#FF6B00",
-  },
-  tagOptionText: {
-    color: "#888",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  addButton: {
-    backgroundColor: "#FF6B00",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 15,
-    borderRadius: 12,
-    marginTop: 5,
-  },
-  addButtonText: {
-    color: "#FFF",
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
-  listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#1A1A1A",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  itemImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: "#000",
-  },
-  itemName: {
-    color: "#FFF",
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  itemBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginTop: 4,
-  },
-  itemPrice: {
-    color: "#888",
-    fontSize: 12,
-  },
-  tagBadge: {
-    backgroundColor: "#FF6B0022",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  tagBadgeText: {
-    color: "#FF6B00",
-    fontSize: 9,
-    fontWeight: "bold",
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  actionIcon: {
-    padding: 5,
-  },
+  container: { flex: 1, backgroundColor: "#000" },
+  header: { flexDirection: "row", justifyContent: "space-between", padding: 20, alignItems: "center" },
+  title: { color: "#FFF", fontSize: 24, fontWeight: "bold" },
+  subtitle: { color: "#FF6B00", fontSize: 12, fontWeight: "bold", letterSpacing: 1 },
+  logoutBtn: { padding: 8, backgroundColor: "#1A1A1A", borderRadius: 10 },
+  tabBar: { flexDirection: "row", paddingHorizontal: 20, marginBottom: 15 },
+  tab: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", padding: 12, borderBottomWidth: 2, borderBottomColor: "#1A1A1A" },
+  activeTab: { borderBottomColor: "#FF6B00" },
+  tabText: { color: "#666", marginLeft: 8, fontWeight: "bold", fontSize: 13 },
+  activeTabText: { color: "#FFF" },
+  content: { flex: 1, paddingHorizontal: 20 },
+  addArea: { marginBottom: 20, backgroundColor: "#1A1A1A", padding: 15, borderRadius: 15 },
+  editAreaBorder: { borderWidth: 1, borderColor: "#28a745" },
+  formTitle: { color: "#FFF", fontWeight: "bold", marginBottom: 10, fontSize: 16 },
+  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  row: { flexDirection: "row", gap: 10 },
+  input: { backgroundColor: "#0A0A0A", color: "#FFF", padding: 12, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: "#333" },
+  label: { color: "#888", fontSize: 12, marginBottom: 8, marginLeft: 2 },
+  tagScroll: { marginBottom: 15 },
+  tagOption: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "#0A0A0A", borderRadius: 8, marginRight: 8, borderWidth: 1, borderColor: "#333" },
+  tagSelected: { backgroundColor: "#FF6B00", borderColor: "#FF6B00" },
+  tagOptionText: { color: "#888", fontSize: 10, fontWeight: "bold" },
+  addButton: { backgroundColor: "#FF6B00", flexDirection: "row", justifyContent: "center", alignItems: "center", padding: 15, borderRadius: 12, marginTop: 5 },
+  addButtonText: { color: "#FFF", fontWeight: "bold", marginLeft: 8 },
+  listItem: { flexDirection: "row", alignItems: "center", backgroundColor: "#1A1A1A", padding: 12, borderRadius: 12, marginBottom: 10 },
+  itemImage: { width: 50, height: 50, borderRadius: 8, backgroundColor: "#000" },
+  itemName: { color: "#FFF", fontWeight: "bold", fontSize: 14 },
+  itemBadgeRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 4 },
+  itemPrice: { color: "#888", fontSize: 12 },
+  tagBadge: { backgroundColor: "#FF6B0022", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  tagBadgeText: { color: "#FF6B00", fontSize: 9, fontWeight: "bold" },
+  actions: { flexDirection: "row", gap: 10 },
+  actionIcon: { padding: 5 }
 });

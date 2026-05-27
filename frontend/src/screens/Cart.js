@@ -8,6 +8,8 @@ import {
   Image,
   Alert,
   Animated,
+  Platform,     
+  ToastAndroid, 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Trash2, ShoppingBag, Plus, Minus } from "lucide-react-native";
@@ -114,11 +116,14 @@ const CartItem = ({ item }) => {
           </Text>
 
           <View style={styles.qtyControls}>
-            <TouchableOpacity
+           <TouchableOpacity
               style={styles.qtyBtn}
-              onPress={() =>
-                dispatch(updateQuantity({ id: item.id, amount: -1 }))
-              }
+              onPress={() => {
+                dispatch(updateQuantity({ id: item.id, amount: -1 }));
+                if (Platform.OS === "android") {
+                  ToastAndroid.show("Quantidade atualizada", ToastAndroid.SHORT);
+                }
+              }}
             >
               <Minus color="#FF6B00" size={16} />
             </TouchableOpacity>
@@ -127,9 +132,12 @@ const CartItem = ({ item }) => {
 
             <TouchableOpacity
               style={styles.qtyBtn}
-              onPress={() =>
-                dispatch(updateQuantity({ id: item.id, amount: 1 }))
-              }
+              onPress={() => {
+                dispatch(updateQuantity({ id: item.id, amount: 1 }));
+                if (Platform.OS === "android") {
+                  ToastAndroid.show("Quantidade atualizada", ToastAndroid.SHORT);
+                }
+              }}
             >
               <Plus color="#FF6B00" size={16} />
             </TouchableOpacity>

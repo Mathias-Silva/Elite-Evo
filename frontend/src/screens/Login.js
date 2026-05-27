@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   Keyboard,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -74,6 +74,14 @@ export default function LoginScreen({ navigation }) {
           value={password}
           onChangeText={setPassword}
         />
+        <TouchableOpacity
+          onPress={() => navigation.navigate("ForgotPassword")}
+          style={{ alignSelf: "flex-end", marginBottom: 20, marginRight: 5 }}
+        >
+          <Text style={{ color: "#888", fontSize: 14 }}>
+            Esqueci minha senha
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>ENTRAR</Text>
@@ -90,14 +98,14 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#000" 
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
   },
-  content: { 
-    flex: 1, 
-    justifyContent: "center", 
-    padding: 30 
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 30,
   },
   logo: {
     color: "#E67E22",
@@ -122,18 +130,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-  buttonText: { 
-    color: "white", 
-    fontWeight: "bold", 
-    fontSize: 16 }
-    ,
-  linkText: { 
-    color: "#888", 
-    textAlign: "center", 
-    marginTop: 25 
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
-  highlight: { 
-    color: "#E67E22", 
-    fontWeight: "bold" 
+  linkText: {
+    color: "#888",
+    textAlign: "center",
+    marginTop: 25,
+  },
+  highlight: {
+    color: "#E67E22",
+    fontWeight: "bold",
   },
 });

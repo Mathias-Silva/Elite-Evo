@@ -8,6 +8,8 @@ import {
   StyleSheet,
   Alert,
   Animated,
+  Platform,
+  ToastAndroid,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Heart, ShoppingCart, Trash2 } from "lucide-react-native";
@@ -49,7 +51,6 @@ const FavoriteItem = ({ item, onAddToCart }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-
       dispatch(removeFavorite(item.id));
     });
   };
@@ -103,8 +104,6 @@ export default function Favorites() {
   const db = useSQLiteContext();
   const items = useSelector((state) => state.favorites.items);
 
-
-  
   useEffect(() => {
     if (isFocused && items.length > 0) {
       syncFavorites();
@@ -120,16 +119,12 @@ export default function Favorites() {
         );
 
         if (!freshData) {
-      
-          
           dispatch(removeFavorite(fav.id));
         } else if (
           freshData.name !== fav.name ||
           freshData.price !== fav.price ||
           freshData.flavor !== fav.flavor
         ) {
-        
-          
           dispatch(removeFavorite(fav.id));
           dispatch(addFavorite(freshData));
         }
@@ -141,6 +136,14 @@ export default function Favorites() {
 
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
+    if (Platform.OS === "android") {
+      ToastAndroid.show(
+        `${product.name} adicionado ao carrinho!`,
+        ToastAndroid.SHORT,
+      );
+    } else {
+      Alert.alert("Sucesso", `${product.name} adicionado ao carrinho!`);
+    }
   };
 
   if (items.length === 0) {
@@ -186,9 +189,8 @@ export default function Favorites() {
 
 const styles = StyleSheet.create({
   container: {
-     flex: 1, 
-    backgroundColor: "#000" 
-
+    flex: 1,
+    backgroundColor: "#000",
   },
   header: {
     flexDirection: "row",
@@ -197,16 +199,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
-  headerTitle: { 
-    color: "#FFF", 
-    fontSize: 24, 
-    fontWeight: "bold" 
-
+  headerTitle: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "bold",
   },
-  headerCount: { 
-    color: "#666", 
-    fontSize: 14 
-
+  headerCount: {
+    color: "#666",
+    fontSize: 14,
   },
   emptyContainer: {
     flex: 1,
@@ -227,16 +227,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 35,
     borderRadius: 30,
   },
-  emptyBtnText: { 
-    color: "#FFF", 
-    fontWeight: "bold", 
-    fontSize: 14 
-
+  emptyBtnText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 14,
   },
-  listContent: { 
-    paddingHorizontal: 20, 
-    paddingBottom: 20 
-
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   card: {
     flexDirection: "row",
@@ -256,26 +254,23 @@ const styles = StyleSheet.create({
     padding: 5,
     overflow: "hidden",
   },
-  productImg: { 
-    width: "100%", 
-    height: "100%" 
+  productImg: {
+    width: "100%",
+    height: "100%",
   },
-  info: { 
-    flex: 1, 
-    marginLeft: 15 
-
+  info: {
+    flex: 1,
+    marginLeft: 15,
   },
-  productName: { 
-    color: "#FFF", 
-    fontSize: 15, 
-    fontWeight: "bold" 
-
+  productName: {
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "bold",
   },
-  productFlavor: { 
-    color: "#666", 
-    fontSize: 12, 
-    marginVertical: 3 
-
+  productFlavor: {
+    color: "#666",
+    fontSize: 12,
+    marginVertical: 3,
   },
   productPrice: {
     color: "#FF6B00",
@@ -300,9 +295,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 5,
   },
-  removeBtn: { 
-    padding: 10, 
-    marginLeft: 5 
-
+  removeBtn: {
+    padding: 10,
+    marginLeft: 5,
   },
 });
