@@ -12,7 +12,6 @@ import {
 } from "lucide-react-native";
 import { useSelector } from "react-redux";
 
-
 import Home from "../screens/Home";
 import Catalog from "../screens/Catalog";
 import Favorites from "../screens/Favorites";
@@ -32,13 +31,8 @@ import OrdersScreen from "../screens/Orders";
 import OrderDetailsScreen from "../screens/OrderDetails";
 import ChangePasswordScreen from "../screens/ChangePassword";
 import SettingsScreen from "../screens/Settings";
-import OrdersScreen from "../screens/Orders";
-import OrderDetailsScreen from "../screens/OrderDetails";
-import ChangePasswordScreen from "../screens/ChangePassword";
-import SettingsScreen from "../screens/Settings";
 
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { useTheme } from "../context/ThemeContext";
 
 const Tab = createBottomTabNavigator();
@@ -46,8 +40,6 @@ const AuthStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 const CartStack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();
-
-
 
 function CartStackNavigator() {
   return (
@@ -70,10 +62,6 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
       <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
       <ProfileStack.Screen name="Settings" component={SettingsScreen} />
-      <ProfileStack.Screen name="Orders" component={OrdersScreen} />
-      <ProfileStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
-      <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-      <ProfileStack.Screen name="Settings" component={SettingsScreen} />
     </ProfileStack.Navigator>
   );
 }
@@ -91,29 +79,23 @@ function AuthStackNavigator() {
   );
 }
 
-// --- COMPONENTE PRINCIPAL ---
-
 function TabNavigator() {
   const { isLoggedIn, user } = useAuth();
   const { colors } = useTheme();
-  const { colors } = useTheme();
 
   const isAdmin = isLoggedIn && user?.email?.toLowerCase() === "admin@eliteevo.com";
-  
+
   const cartItems = useSelector((state) => state.cart.items);
   const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
   const favoriteItems = useSelector((state) => state.favorites.items);
-  
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#FF6B00",
         tabBarInactiveTintColor: colors.textSecondary,
-        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           height: Platform.OS === "android" ? 85 : 95,
@@ -131,7 +113,6 @@ function TabNavigator() {
       }}
     >
       {isAdmin ? (
-        /* --- MENU DO ADMINISTRADOR --- */
         <>
           <Tab.Screen
             name="Painel Admin"
@@ -167,20 +148,18 @@ function TabNavigator() {
               title: "Carrinho",
               tabBarIcon: ({ color }) => <ShoppingCart color={color} size={24} />,
               tabBarBadge: totalQuantity > 0 ? totalQuantity : null,
-              tabBarBadgeStyle: { backgroundColor: '#FF6B00', color: '#FFF', fontWeight: 'bold' },
+              tabBarBadgeStyle: { backgroundColor: "#FF6B00", color: "#FFF", fontWeight: "bold" },
             }}
           />
-
           <Tab.Screen
             name="Favoritos"
             component={Favorites}
             options={{
               tabBarIcon: ({ color }) => <Heart color={color} size={24} />,
               tabBarBadge: favoriteItems.length > 0 ? favoriteItems.length : null,
-              tabBarBadgeStyle: { backgroundColor: '#FF6B00', color: '#FFF', fontWeight: 'bold' },
+              tabBarBadgeStyle: { backgroundColor: "#FF6B00", color: "#FFF", fontWeight: "bold" },
             }}
           />
-
           <Tab.Screen
             name="Perfil"
             component={ProfileStackNavigator}
@@ -190,7 +169,6 @@ function TabNavigator() {
           />
         </>
       ) : (
-        /* --- MENU DO CLIENTE / DESLOGADO --- */
         <>
           <Tab.Screen
             name="Início"
@@ -218,7 +196,7 @@ function TabNavigator() {
               title: "Carrinho",
               tabBarIcon: ({ color }) => <ShoppingCart color={color} size={24} />,
               tabBarBadge: totalQuantity > 0 ? totalQuantity : null,
-              tabBarBadgeStyle: { backgroundColor: '#FF6B00', color: '#FFF', fontWeight: 'bold' },
+              tabBarBadgeStyle: { backgroundColor: "#FF6B00", color: "#FFF", fontWeight: "bold" },
             }}
           />
           <Tab.Screen
@@ -227,7 +205,7 @@ function TabNavigator() {
             options={{
               tabBarIcon: ({ color }) => <Heart color={color} size={24} />,
               tabBarBadge: favoriteItems.length > 0 ? favoriteItems.length : null,
-              tabBarBadgeStyle: { backgroundColor: '#FF6B00', color: '#FFF', fontWeight: 'bold' },
+              tabBarBadgeStyle: { backgroundColor: "#FF6B00", color: "#FFF", fontWeight: "bold" },
             }}
           />
           <Tab.Screen

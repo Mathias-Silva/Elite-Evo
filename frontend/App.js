@@ -7,7 +7,7 @@ import { store } from './src/store';
 import { initializeDatabase } from './src/database/initializeDatabase';
 import { AuthProvider } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
-import TabNavigator from './src/navigation';
+import RootNavigator from './src/navigation';
 import { StatusBar } from 'react-native';
 
 function ThemedStatusBar() {
@@ -24,7 +24,7 @@ export default function App() {
           <ThemedStatusBar />
           <AuthProvider>
             <NavigationContainer>
-              <TabNavigator />
+              <RootNavigator />
             </NavigationContainer>
           </AuthProvider>
         </ThemeProvider>
