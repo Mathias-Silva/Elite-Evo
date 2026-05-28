@@ -15,10 +15,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Trash2, ShoppingBag, Plus, Minus } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector, useDispatch } from "react-redux";
-import { removeItem, updateQuantity } from "../store/cartSlice";
+import { addItem, removeItem, updateQuantity } from "../store/cartSlice";
 import { useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { SPACING } from "../theme";
 import productImages from "../utils/productImages";
 
@@ -26,6 +27,7 @@ productImages;
 
 const CartItem = ({ item }) => {
   const dispatch = useDispatch();
+  const { colors } = useTheme();
   const isFocused = useIsFocused();
   const db = useSQLiteContext();
   const cartItems = useSelector((state) => state.cart.items);
@@ -96,10 +98,11 @@ const CartItem = ({ item }) => {
     <Animated.View
       style={[
         styles.cartItem,
+        { backgroundColor: colors.cardBackground, borderColor: colors.border },
         { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
       ]}
     >
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, { backgroundColor: colors.secondary }]}>
         <Image
           source={productImages[item.image]}
           style={styles.productImg}
@@ -108,15 +111,15 @@ const CartItem = ({ item }) => {
       </View>
 
       <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemFlavor}>{item.flavor}</Text>
+        <Text style={[styles.itemName, { color: colors.textPrimary }]}>{item.name}</Text>
+        <Text style={[styles.itemFlavor, { color: colors.textSecondary }]}>{item.flavor}</Text>
 
         <View style={styles.priceQtyRow}>
           <Text style={styles.itemPrice}>
             R$ {item.price.toFixed(2).replace(".", ",")}
           </Text>
 
-          <View style={styles.qtyControls}>
+          <View style={[styles.qtyControls, { backgroundColor: colors.secondary }]}>
            <TouchableOpacity
               style={styles.qtyBtn}
               onPress={() => {
@@ -129,7 +132,7 @@ const CartItem = ({ item }) => {
               <Minus color="#FF6B00" size={16} />
             </TouchableOpacity>
 
-            <Text style={styles.qtyText}>{item.quantity}</Text>
+            <Text style={[styles.qtyText, { color: colors.textPrimary }]}>{item.quantity}</Text>
 
             <TouchableOpacity
               style={styles.qtyBtn}
@@ -156,6 +159,7 @@ const CartItem = ({ item }) => {
 export default function Cart() {
   const navigation = useNavigation();
   const { isLoggedIn } = useAuth();
+  const { colors } = useTheme();
   const { items, totalAmount } = useSelector((state) => state.cart);
 
   const handleCheckout = () => {
@@ -186,9 +190,9 @@ export default function Cart() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top", "left", "right"]}>
       <View style={styles.headerCart}>
-        <Text style={styles.headerTitle}>Meu Carrinho</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Meu Carrinho</Text>
       </View>
 
       {items.length > 0 ? (
@@ -200,10 +204,10 @@ export default function Cart() {
             renderItem={({ item }) => <CartItem item={item} />}
           />
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total do Pedido:</Text>
-              <Text style={styles.totalValue}>
+              <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Total do Pedido:</Text>
+              <Text style={[styles.totalValue, { color: colors.textPrimary }]}>
                 R$ {totalAmount.toFixed(2).replace(".", ",")}
               </Text>
             </View>
@@ -217,10 +221,10 @@ export default function Cart() {
         </>
       ) : (
         <View style={styles.emptyContainer}>
-          <ShoppingBag color="#1A1A1A" size={100} />
-          <Text style={styles.emptyText}>Seu carrinho está vazio</Text>
+          <ShoppingBag color={colors.border} size={100} />
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Seu carrinho está vazio</Text>
           <TouchableOpacity
-            style={styles.backBtn}
+            style={[styles.backBtn, { backgroundColor: colors.cardBackground }]}
             onPress={() => navigation.navigate("Catálogo")}
           >
             <Text style={styles.backBtnText}>Voltar às compras</Text>

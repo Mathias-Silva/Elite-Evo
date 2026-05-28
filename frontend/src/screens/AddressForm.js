@@ -18,12 +18,14 @@ import { SPACING } from "../theme";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function AddressFormScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const db = useSQLiteContext();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   const editId = route.params?.id;
   const isEditing = !!editId;
@@ -158,14 +160,14 @@ export default function AddressFormScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color="#FF6B00" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
         title={isEditing ? "Editar Endereço" : "Novo Endereço"}
         onBack={() => navigation.goBack()}
@@ -180,10 +182,18 @@ export default function AddressFormScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.formGroup}>
-            <Text style={styles.label}>CEP</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>CEP</Text>
             <View style={styles.cepContainer}>
               <TextInput
-                style={[styles.input, styles.cepInput]}
+                style={[
+                  styles.input,
+                  styles.cepInput,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholder="00000-000"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
@@ -206,9 +216,16 @@ export default function AddressFormScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Logradouro (Rua, Avenida, etc)</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Logradouro (Rua, Avenida, etc)</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                },
+              ]}
               placeholderTextColor="#666"
               value={street}
               onChangeText={setStreet}
@@ -217,9 +234,16 @@ export default function AddressFormScreen() {
 
           <View style={styles.row}>
             <View style={[styles.formGroup, { flex: 1, marginRight: 10 }]}>
-              <Text style={styles.label}>Número</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Número</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholderTextColor="#666"
                 keyboardType="numeric"
                 value={number}
@@ -227,9 +251,16 @@ export default function AddressFormScreen() {
               />
             </View>
             <View style={[styles.formGroup, { flex: 1.5 }]}>
-              <Text style={styles.label}>Complemento (Opcional)</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Complemento (Opcional)</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholderTextColor="#666"
                 value={complement}
                 onChangeText={setComplement}
@@ -238,9 +269,16 @@ export default function AddressFormScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Bairro</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Bairro</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                },
+              ]}
               placeholderTextColor="#666"
               value={neighborhood}
               onChangeText={(text) =>
@@ -251,9 +289,16 @@ export default function AddressFormScreen() {
 
           <View style={styles.row}>
             <View style={[styles.formGroup, { flex: 2, marginRight: 10 }]}>
-              <Text style={styles.label}>Cidade</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Cidade</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholderTextColor="#666"
                 value={city}
                 onChangeText={(text) =>
@@ -262,9 +307,16 @@ export default function AddressFormScreen() {
               />
             </View>
             <View style={[styles.formGroup, { flex: 1 }]}>
-              <Text style={styles.label}>UF</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>UF</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholderTextColor="#666"
                 maxLength={2}
                 autoCapitalize="characters"
@@ -276,7 +328,7 @@ export default function AddressFormScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Save color="#FFF" size={20} />
           <Text style={styles.saveText}>Salvar Endereço</Text>

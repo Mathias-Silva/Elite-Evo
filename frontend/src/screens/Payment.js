@@ -16,16 +16,22 @@ import {
   ExternalLink,
 } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../context/AuthContext";
+import { useSQLiteContext } from "expo-sqlite";
+import { clearCart } from "../store/cartSlice";
 import * as Linking from "expo-linking";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SPACING } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function PaymentScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
+  const db = useSQLiteContext();
   const { user } = useAuth();
+  const { colors } = useTheme();
   const address = route.params?.address;
   const { items, totalAmount } = useSelector((state) => state.cart);
   const [loading, setLoading] = useState(false);
@@ -68,6 +74,31 @@ export default function PaymentScreen() {
       const data = await response.json();
 
       if (data.init_point) {
+        // --- ARMAZENA O PEDIDO NO BANCO LOCAL ---
+        const orderNumber = "EVO-" + Math.floor(100000 + Math.random() * 900000);
+        const createdAt = new Date().toISOString();
+        const shippingAddressStr = address
+          ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city}/${address.state}`
+          : "";
+
+        // 1. Cria o Pedido
+        const orderResult = await db.runAsync(
+          "INSERT INTO orders (userId, orderNumber, totalAmount, shippingAddress, createdAt) VALUES (?, ?, ?, ?, ?)",
+          [user?.id || 1, orderNumber, totalAmount, shippingAddressStr, createdAt]
+        );
+        const orderId = orderResult.lastInsertRowId;
+
+        // 2. Cria os Itens do Pedido
+        for (const item of items) {
+          await db.runAsync(
+            "INSERT INTO order_items (orderId, productId, productName, flavor, price, quantity, image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [orderId, item.id, item.name, item.flavor || "", item.price, item.quantity, item.image || ""]
+          );
+        }
+
+        // 3. Limpa o carrinho no Redux
+        dispatch(clearCart());
+
         // Redireciona o usuário para o Checkout Transparente (Web/App Mercado Pago)
         await Linking.openURL(data.init_point);
       } else {
@@ -86,20 +117,20 @@ export default function PaymentScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Pagamento" onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.sectionTitle}>Resumo do Pedido</Text>
+        <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Resumo do Pedido</Text>
           <View style={styles.row}>
-            <ShoppingBag color="#666" size={18} />
-            <Text style={styles.rowText}>
+            <ShoppingBag color={colors.textSecondary} size={18} />
+            <Text style={[styles.rowText, { color: colors.textPrimary }]}>
               {items.length} pacote({items.length > 1 ? "s" : ""}) selecionados
             </Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total a Pagar:</Text>
+          <View style={[styles.totalRow, { borderColor: colors.border }]}>
+            <Text style={[styles.totalLabel, { color: colors.textPrimary }]}>Total a Pagar:</Text>
             <Text style={styles.totalValue}>
               R$ {totalAmount.toFixed(2).replace(".", ",")}
             </Text>
@@ -107,27 +138,27 @@ export default function PaymentScreen() {
         </View>
 
         <View style={styles.addressCard}>
-          <Text style={styles.sectionTitle}>Será entregue em:</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Será entregue em:</Text>
           <View style={styles.addressInfo}>
             <MapPin color="#FF6B00" size={20} />
             <View style={{ marginLeft: 10, flex: 1 }}>
-              <Text style={styles.addressStreet}>
+              <Text style={[styles.addressStreet, { color: colors.textPrimary }]}>
                 {address?.street}, {address?.number}
               </Text>
-              <Text style={styles.addressCity}>
+              <Text style={[styles.addressCity, { color: colors.textSecondary }]}>
                 {address?.neighborhood} - {address?.city}/{address?.state}
               </Text>
             </View>
           </View>
         </View>
 
-        <Text style={styles.paymentMethodTitle}>
+        <Text style={[styles.paymentMethodTitle, { color: colors.textPrimary }]}>
           Selecione o Meio de Pagamento
         </Text>
 
         {/* Única Opção Atual: Mercado Pago */}
         <TouchableOpacity
-          style={styles.mpButton}
+          style={[styles.mpButton, { backgroundColor: colors.cardBackground }]}
           onPress={handleMercadoPagoCheckout}
           disabled={loading}
         >
@@ -139,13 +170,13 @@ export default function PaymentScreen() {
                 <View style={styles.mpIconBg}>
                   <CreditCard color="#009EE3" size={24} />
                 </View>
-                <Text style={styles.mpText}>Pagar com Mercado Pago</Text>
+                <Text style={[styles.mpText, { color: colors.textPrimary }]}>Pagar com Mercado Pago</Text>
               </View>
-              <ExternalLink color="#AAA" size={20} />
+              <ExternalLink color={colors.textSecondary} size={20} />
             </>
           )}
         </TouchableOpacity>
-        <Text style={styles.mpSubtitle}>
+        <Text style={[styles.mpSubtitle, { color: colors.textSecondary }]}>
           Você será redirecionado para um ambiente seguro.
         </Text>
       </View>

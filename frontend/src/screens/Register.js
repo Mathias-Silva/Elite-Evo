@@ -11,6 +11,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SPACING } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ export default function RegisterScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState(""); // Novo estado
 
   const db = useSQLiteContext();
+  const { colors } = useTheme();
 
   async function handleRegister() {
     if (!name || !email || !password || !confirmPassword) {
@@ -48,18 +50,18 @@ export default function RegisterScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Cadastro" onBack={() => navigation.goBack()} />
       <View style={styles.content}>
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.textPrimary }]}
           placeholder="Nome Completo"
           placeholderTextColor="#666"
           onChangeText={setName}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.textPrimary }]}
           placeholder="E-mail"
           placeholderTextColor="#666"
           keyboardType="email-address"
@@ -67,7 +69,7 @@ export default function RegisterScreen({ navigation }) {
           onChangeText={setEmail}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.textPrimary }]}
           placeholder="Senha"
           placeholderTextColor="#666"
           secureTextEntry
@@ -75,7 +77,7 @@ export default function RegisterScreen({ navigation }) {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.textPrimary }]}
           placeholder="Confirmar Senha"
           placeholderTextColor="#666"
           secureTextEntry
@@ -87,7 +89,7 @@ export default function RegisterScreen({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.linkText}>
+          <Text style={[styles.linkText, { color: colors.textSecondary }]}>
             Já tem uma conta? <Text style={styles.highlight}>Faça login</Text>
           </Text>
         </TouchableOpacity>

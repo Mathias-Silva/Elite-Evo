@@ -32,8 +32,13 @@ import OrdersScreen from "../screens/Orders";
 import OrderDetailsScreen from "../screens/OrderDetails";
 import ChangePasswordScreen from "../screens/ChangePassword";
 import SettingsScreen from "../screens/Settings";
+import OrdersScreen from "../screens/Orders";
+import OrderDetailsScreen from "../screens/OrderDetails";
+import ChangePasswordScreen from "../screens/ChangePassword";
+import SettingsScreen from "../screens/Settings";
 
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { useTheme } from "../context/ThemeContext";
 
 const Tab = createBottomTabNavigator();
@@ -65,6 +70,10 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
       <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
       <ProfileStack.Screen name="Settings" component={SettingsScreen} />
+      <ProfileStack.Screen name="Orders" component={OrdersScreen} />
+      <ProfileStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
+      <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <ProfileStack.Screen name="Settings" component={SettingsScreen} />
     </ProfileStack.Navigator>
   );
 }
@@ -87,6 +96,7 @@ function AuthStackNavigator() {
 function TabNavigator() {
   const { isLoggedIn, user } = useAuth();
   const { colors } = useTheme();
+  const { colors } = useTheme();
 
   const isAdmin = isLoggedIn && user?.email?.toLowerCase() === "admin@eliteevo.com";
   
@@ -100,7 +110,10 @@ function TabNavigator() {
         headerShown: false,
         tabBarActiveTintColor: "#FF6B00",
         tabBarInactiveTintColor: colors.textSecondary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           height: Platform.OS === "android" ? 85 : 95,

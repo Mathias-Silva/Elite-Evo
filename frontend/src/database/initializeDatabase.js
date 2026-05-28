@@ -40,10 +40,55 @@ export async function initializeDatabase(database) {
       FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
+
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER NOT NULL,
+      orderNumber TEXT NOT NULL,
+      totalAmount REAL NOT NULL,
+      shippingAddress TEXT,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
+
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS order_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      orderId INTEGER NOT NULL,
+      productId INTEGER NOT NULL,
+      productName TEXT NOT NULL,
+      flavor TEXT,
+      price REAL NOT NULL,
+      quantity INTEGER NOT NULL,
+      image TEXT,
+      FOREIGN KEY(orderId) REFERENCES orders(id) ON DELETE CASCADE
+    );
+  `);
+
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS favorites (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER NOT NULL,
+      productId INTEGER NOT NULL,
+      UNIQUE(userId, productId),
+      FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY(productId) REFERENCES products(id) ON DELETE CASCADE
+    );
+  `);
+
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS app_preferences (
+      key TEXT PRIMARY KEY NOT NULL,
+      value TEXT NOT NULL
+    );
+  `);
 // Exemplo de como inserir no seu arquivo de banco de dados:
 await database.execAsync(`
   INSERT OR IGNORE INTO users (name, email, password) 
   VALUES ('Administrador', 'admin@eliteevo.com', 'admin123');
+  INSERT OR IGNORE INTO users (name, email, password)
   VALUES ('Usuario', 'mathias@eliteevo.com', '123456');
 `);
     // Adiciona coluna profileImage em bancos já existentes
