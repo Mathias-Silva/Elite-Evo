@@ -8,7 +8,9 @@ import {
   Alert,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import {SafeAreaView} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { SPACING } from "../theme";
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -47,8 +49,8 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Cadastro" onBack={() => navigation.goBack()} />
       <View style={styles.content}>
-        <Text style={styles.title}>Cadastro</Text>
 
         <TextInput
           style={styles.input}
@@ -99,10 +101,12 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: "#000" 
   },
-  content: { 
-    flex: 1, 
-    justifyContent: "center", 
-    padding: 30 
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: SPACING.screen,
+    paddingBottom: SPACING.xl,
+    paddingTop: SPACING.md,
   },
   title: { 
     color: "white", 
@@ -115,7 +119,7 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 18,
     borderRadius: 12,
-    marginBottom: 15,
+    marginBottom: SPACING.block,
   },
   button: {
     backgroundColor: "#E67E22",

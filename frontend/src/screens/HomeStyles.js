@@ -1,4 +1,5 @@
 import { StyleSheet, Platform, Dimensions } from 'react-native';
+import { SPACING } from '../theme';
 
 const { width } = Dimensions.get('window');
 
@@ -13,10 +14,11 @@ export const styles = StyleSheet.create({
   header: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
-    padding: 20, 
+    paddingHorizontal: SPACING.screen,
+    paddingBottom: SPACING.md,
     alignItems: 'center',
     backgroundColor: '#000',
-    paddingTop: Platform.OS === 'android' ? 45 : 20 
+    paddingTop: Platform.OS === 'android' ? 45 : SPACING.screen,
   },
   logo: { 
     color: '#FFF', 
@@ -51,9 +53,11 @@ export const styles = StyleSheet.create({
   
   
   heroSection: { 
-    padding: 25, 
+    padding: SPACING.lg, 
     backgroundColor: '#111', 
-    margin: 20, 
+    marginHorizontal: SPACING.screen,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.section,
     borderRadius: 20, 
     height: 250, 
     justifyContent: 'center' 
@@ -81,10 +85,10 @@ export const styles = StyleSheet.create({
   sectionHeader: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
-    paddingHorizontal: 20, 
-    marginBottom: 15,
+    paddingHorizontal: SPACING.screen, 
+    marginBottom: SPACING.block,
     alignItems: 'center',
-    marginTop: 10
+    marginTop: SPACING.md,
   },
   sectionTitle: { 
     color: '#FFF', 
@@ -104,15 +108,15 @@ export const styles = StyleSheet.create({
 
   
   flatListContent: {
-    paddingHorizontal: 10, 
-    paddingBottom: 20
+    paddingHorizontal: SPACING.sm,
+    paddingBottom: SPACING.lg,
   },
 
   
  productCard: { 
     backgroundColor: '#121212', 
     flex: 1,                
-    margin: 6,               
+    margin: SPACING.sm,
     borderRadius: 20,       
     padding: 10, 
     borderWidth: 1,

@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSQLiteContext } from "expo-sqlite";
 import { ShoppingCart, Search, Star, Heart, X } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
 import { addFavorite, removeFavorite } from "../store/favoritesSlice";
@@ -68,7 +69,20 @@ export default function Home() {
     }
   };
   const navigation = useNavigation();
+  const { user, isLoggedIn } = useAuth();
   const dispatch = useDispatch();
+
+  const homeTab =
+    isLoggedIn && user?.email?.toLowerCase() === "admin@eliteevo.com"
+      ? "Loja"
+      : "Início";
+
+  const goToCatalog = (category) => {
+    navigation.navigate("Catálogo", {
+      fromScreen: homeTab,
+      ...(category ? { category } : {}),
+    });
+  };
   const db = useSQLiteContext();
 
   const [products, setProducts] = useState([]);
@@ -219,20 +233,41 @@ export default function Home() {
               </Text>
               <TouchableOpacity
                 style={styles.buttonPrimary}
-                onPress={() => navigation.navigate("Catálogo")}
+                onPress={() => goToCatalog()}
               >
                 <Text style={styles.buttonText}>Ver Produtos</Text>
               </TouchableOpacity>
             </View>
 
-            <View style={{ paddingHorizontal: 20, marginBottom: 30 }}>
-              <Text style={styles.sectionTitle}>Categorias em Destaque</Text>
+            <View style={{ paddingHorizontal: 20, marginBottom: 32, marginTop: 8 }}>
+              <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Categorias em Destaque</Text>
               <View style={styles.categoriesGrid}>
-                <CategoryCard title="Whey Protein" image={productImages["whey_isolate"]} />
-                <CategoryCard title="Creatina" image={productImages["creatina_pure"]} />
-                <CategoryCard title="Pré-Treino" image={productImages["pre_treino_explosion"]} />
-                <CategoryCard title="Aminoácidos" image={productImages["aminoacidos_capsula"]} />
-                <CategoryCard title="Vitaminas" image={productImages["vitaminas"]} fullWidth={true} />
+                <CategoryCard
+                  title="Whey Protein"
+                  image={productImages["whey_isolate"]}
+                  onPress={() => goToCatalog("Whey Protein")}
+                />
+                <CategoryCard
+                  title="Creatina"
+                  image={productImages["creatina_pure"]}
+                  onPress={() => goToCatalog("Creatina")}
+                />
+                <CategoryCard
+                  title="Pré-Treino"
+                  image={productImages["pre_treino_explosion"]}
+                  onPress={() => goToCatalog("Pré-Treino")}
+                />
+                <CategoryCard
+                  title="Aminoácidos"
+                  image={productImages["aminoacidos_capsula"]}
+                  onPress={() => goToCatalog("Aminoácidos")}
+                />
+                <CategoryCard
+                  title="Vitaminas"
+                  image={productImages["vitaminas"]}
+                  fullWidth={true}
+                  onPress={() => goToCatalog("Vitaminas")}
+                />
               </View>
             </View>
 
@@ -241,7 +276,7 @@ export default function Home() {
                 <Text style={styles.sectionTitle}>Os Mais Vendidos</Text>
                 <Text style={{ color: "#666", fontSize: 12 }}>Os favoritos dos nossos atletas de elite</Text>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate("Catálogo")}>
+              <TouchableOpacity onPress={() => goToCatalog()}>
                 <Text style={styles.viewAll}>Ver todos {">"}</Text>
               </TouchableOpacity>
             </View>

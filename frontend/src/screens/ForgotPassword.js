@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { SPACING } from "../theme";
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -99,8 +101,22 @@ export default function ForgotPasswordScreen({ navigation }) {
     }
   }
 
+  const handleBack = () => {
+    if (isEmailVerified) {
+      setIsEmailVerified(false);
+      setPassword("");
+      setConfirmPassword("");
+    } else {
+      navigation.goBack();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader
+        title={!isEmailVerified ? "Recuperar senha" : "Nova senha"}
+        onBack={handleBack}
+      />
       <View style={styles.content}>
         <Text style={styles.logo}>ELITE EVO</Text>
         <Text style={styles.subtitle}>
@@ -179,10 +195,12 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: "#000" 
   },
-  content: { 
-    flex: 1, 
-    justifyContent: "center", 
-    padding: 30 
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: SPACING.screen,
+    paddingBottom: SPACING.xl,
+    paddingTop: SPACING.md,
   },
   logo: {
     color: "#E67E22",

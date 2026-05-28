@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  ChevronLeft,
   CreditCard,
   ShoppingBag,
   MapPin,
@@ -20,6 +19,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { useAuth } from "../context/AuthContext";
 import * as Linking from "expo-linking";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { SPACING } from "../theme";
 
 export default function PaymentScreen() {
   const navigation = useNavigation();
@@ -86,16 +87,7 @@ export default function PaymentScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <ChevronLeft color="#FFF" size={28} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Pagamento</Text>
-        <View style={{ width: 28 }} />
-      </View>
+      <ScreenHeader title="Pagamento" onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
         <View style={styles.summaryCard}>
@@ -184,14 +176,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   content: {
-    padding: 20,
+    padding: SPACING.screen,
+    paddingTop: SPACING.section,
     flex: 1,
   },
   summaryCard: {
     backgroundColor: "#121212",
-    padding: 20,
+    padding: SPACING.lg,
     borderRadius: 16,
-    marginBottom: 20,
+    marginBottom: SPACING.lg,
     borderWidth: 1,
     borderColor: "#1A1A1A",
   },
@@ -232,9 +225,9 @@ const styles = StyleSheet.create({
   },
   addressCard: {
     backgroundColor: "rgba(255, 107, 0, 0.05)",
-    padding: 20,
+    padding: SPACING.lg,
     borderRadius: 16,
-    marginBottom: 30,
+    marginBottom: SPACING.lg,
     borderWidth: 1,
     borderColor: "rgba(255, 107, 0, 0.2)",
   },

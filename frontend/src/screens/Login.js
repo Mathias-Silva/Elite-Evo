@@ -11,6 +11,8 @@ import {
 import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { SPACING } from "../theme";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -53,6 +55,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Entrar" onBack={() => navigation.goBack()} />
       <View style={styles.content}>
         <Text style={styles.logo}>ELITE EVO</Text>
 
@@ -105,7 +108,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: "center",
-    padding: 30,
+    paddingHorizontal: SPACING.screen,
+    paddingBottom: SPACING.xl,
+    paddingTop: SPACING.md,
   },
   logo: {
     color: "#E67E22",
@@ -120,7 +125,7 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 18,
     borderRadius: 12,
-    marginBottom: 15,
+    marginBottom: SPACING.block,
     fontSize: 16,
   },
   button: {

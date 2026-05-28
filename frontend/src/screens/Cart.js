@@ -19,6 +19,7 @@ import { removeItem, updateQuantity } from "../store/cartSlice";
 import { useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
+import { SPACING } from "../theme";
 import productImages from "../utils/productImages";
 
 productImages;
@@ -195,7 +196,7 @@ export default function Cart() {
           <FlatList
             data={items}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={styles.listContent}
             renderItem={({ item }) => <CartItem item={item} />}
           />
 
@@ -236,8 +237,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   headerCart: {
-    padding: 20,
-    paddingTop: 10,
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.block,
+  },
+  listContent: {
+    paddingHorizontal: SPACING.screen,
+    paddingBottom: SPACING.md,
   },
   headerTitle: {
     color: "#FFF",
@@ -249,7 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#121212",
     borderRadius: 20,
     padding: 15,
-    marginBottom: 15,
+    marginBottom: SPACING.block,
     alignItems: "center",
   },
   imageContainer: {
@@ -308,9 +314,9 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   footer: {
-    paddingHorizontal: 25,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.md,
     backgroundColor: "#0A0A0A",
     borderTopWidth: 1,
     borderTopColor: "#1A1A1A",
@@ -318,7 +324,7 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: SPACING.lg,
   },
   totalLabel: {
     color: "#AAA",

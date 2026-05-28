@@ -17,3 +17,18 @@ export const COLORS = {
   textSecondary: '#A0A0A0',
   success: '#00C853',      
 };
+
+/** Espaçamentos padronizados (UI/UX — respiro entre blocos) */
+export const SPACING = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  /** Margem horizontal padrão das telas */
+  screen: 20,
+  /** Entre seções principais (ex.: header → filtros → lista) */
+  section: 24,
+  /** Entre blocos relacionados (ex.: chip → busca) */
+  block: 16,
+};

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Text,
   View,
@@ -16,10 +16,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSQLiteContext } from "expo-sqlite";
 import { Search, ShoppingCart, Heart, Star } from "lucide-react-native";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { useAuth } from "../context/AuthContext";
+import { SPACING } from "../theme";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
 import { addFavorite, removeFavorite } from "../store/favoritesSlice";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -29,12 +32,39 @@ productImages;
 
 export default function Catalog() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { user, isLoggedIn } = useAuth();
   const dispatch = useDispatch();
   const db = useSQLiteContext();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(route.params?.category ?? null);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCategoryFilter(route.params?.category ?? null);
+    }, [route.params?.category])
+  );
+
+  const defaultHomeTab =
+    isLoggedIn && user?.email?.toLowerCase() === "admin@eliteevo.com"
+      ? "Loja"
+      : "Início";
+
+  const cameFromAnotherScreen = Boolean(route.params?.fromScreen);
+
+  const clearCategoryFilter = () => {
+    setCategoryFilter(null);
+    navigation.setParams({ category: undefined, fromScreen: undefined });
+  };
+
+  const handleBack = () => {
+    const target = route.params?.fromScreen || defaultHomeTab;
+    clearCategoryFilter();
+    navigation.navigate(target);
+  };
 
   const cartItems = useSelector((state) => state.cart.items);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -59,10 +89,23 @@ export default function Catalog() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products;
-    const q = searchQuery.toLowerCase();
-    return products.filter((p) => p.name.toLowerCase().includes(q));
-  }, [products, searchQuery]);
+    let result = products;
+
+    if (categoryFilter) {
+      result = result.filter((p) => p.category === categoryFilter);
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.category && p.category.toLowerCase().includes(q))
+      );
+    }
+
+    return result;
+  }, [products, searchQuery, categoryFilter]);
 
 const showToast = (message) => {
     if (Platform.OS === "android") {
@@ -98,42 +141,86 @@ const showToast = (message) => {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Catálogo</Text>
-        <TouchableOpacity
-          style={styles.cartBadgeContainer}
-          onPress={() => navigation.navigate("Cart")}
-        >
-          <ShoppingCart color="#FFF" size={22} />
-          {cartCount > 0 && (
-            <View style={styles.cartBadge}>
-              <Text style={styles.cartBadgeText}>{cartCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <Search color="#FF6B00" size={18} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar produto..."
-          placeholderTextColor="#666"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Text style={styles.clearBtn}>✕</Text>
+      <ScreenHeader
+        title={categoryFilter ? categoryFilter : "Catálogo"}
+        subtitle={
+          categoryFilter
+            ? `${filteredProducts.length} produto(s) nesta categoria`
+            : cameFromAnotherScreen
+              ? "Todos os produtos"
+              : undefined
+        }
+        onBack={cameFromAnotherScreen ? handleBack : undefined}
+        titleAlign={cameFromAnotherScreen ? "center" : "left"}
+        rightElement={
+          <TouchableOpacity
+            style={styles.cartBadgeContainer}
+            onPress={() => navigation.navigate("Cart")}
+          >
+            <ShoppingCart color="#FFF" size={22} />
+            {cartCount > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cartCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
-        )}
+        }
+      />
+
+      <View style={styles.pageBody}>
+        {categoryFilter ? (
+          <View style={styles.filterSection}>
+            <View style={styles.categoryChipRow}>
+              <View style={styles.categoryChip}>
+                <Text style={styles.categoryChipText}>{categoryFilter}</Text>
+              </View>
+              <TouchableOpacity onPress={clearCategoryFilter} style={styles.clearCategoryBtn}>
+                <Text style={styles.clearCategoryText}>Ver tudo ✕</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
+        <View
+          style={[
+            styles.searchSection,
+            categoryFilter
+              ? styles.searchSectionAfterFilter
+              : styles.searchSectionFirst,
+          ]}
+        >
+          <View style={styles.searchContainer}>
+            <Search color="#FF6B00" size={18} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar produto..."
+              placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <Text style={styles.clearBtn}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
       </View>
 
       {filteredProducts.length === 0 ? (
         <View style={styles.emptySearch}>
           <Text style={styles.emptySearchText}>
-            Nenhum produto encontrado para "{searchQuery}"
+            {searchQuery.trim()
+              ? `Nenhum produto encontrado para "${searchQuery}"`
+              : categoryFilter
+                ? `Nenhum produto na categoria "${categoryFilter}"`
+                : "Nenhum produto encontrado"}
           </Text>
+          {categoryFilter ? (
+            <TouchableOpacity onPress={clearCategoryFilter} style={styles.emptyClearBtn}>
+              <Text style={styles.emptyClearText}>Limpar filtro de categoria</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       ) : (
         <FlatList
@@ -222,18 +309,61 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+  pageBody: {
     backgroundColor: "#000",
   },
-  headerTitle: { 
-    color: "#FFF", 
-    fontSize: 24, 
-    fontWeight: "bold" 
+  filterSection: {
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.section,
+    paddingBottom: SPACING.block,
+  },
+  searchSection: {
+    paddingHorizontal: SPACING.screen,
+    paddingBottom: SPACING.lg,
+  },
+  searchSectionFirst: {
+    paddingTop: SPACING.section,
+  },
+  searchSectionAfterFilter: {
+    paddingTop: SPACING.block,
+  },
+  categoryChipRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  categoryChip: {
+    backgroundColor: "rgba(255, 107, 0, 0.15)",
+    borderWidth: 1,
+    borderColor: "#FF6B00",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  categoryChipText: {
+    color: "#FF6B00",
+    fontSize: 13,
+    fontWeight: "bold",
+  },
+  clearCategoryBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  clearCategoryText: {
+    color: "#888",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  emptyClearBtn: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "#1A1A1A",
+    borderRadius: 12,
+  },
+  emptyClearText: {
+    color: "#FF6B00",
+    fontWeight: "bold",
   },
   cartBadgeContainer: {
      position: "relative" 
@@ -261,9 +391,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#1A1A1A",
     borderRadius: 20,
-    marginHorizontal: 20,
-    marginBottom: 15,
-    paddingHorizontal: 15,
+    paddingHorizontal: SPACING.md,
     height: 48,
   },
   searchIcon: { 
@@ -297,15 +425,15 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-     paddingHorizontal: 10, 
-    paddingBottom: 20 
-
+    paddingHorizontal: SPACING.sm,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.lg,
   },
 
   productCard: {
     backgroundColor: "#121212",
     flex: 1,
-    margin: 6,
+    margin: SPACING.sm,
     borderRadius: 20,
     padding: 10,
     borderWidth: 1,

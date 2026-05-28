@@ -12,7 +12,9 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeft, Save, Search } from "lucide-react-native";
+import { Save, Search } from "lucide-react-native";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { SPACING } from "../theme";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
@@ -164,18 +166,10 @@ export default function AddressFormScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <ChevronLeft color="#FFF" size={28} />
-        </TouchableOpacity>
-        <Text style={styles.title}>
-          {isEditing ? "Editar Endereço" : "Novo Endereço"}
-        </Text>
-        <View style={{ width: 28 }} />
-      </View>
+      <ScreenHeader
+        title={isEditing ? "Editar Endereço" : "Novo Endereço"}
+        onBack={() => navigation.goBack()}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -321,20 +315,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold" 
   },
   scrollContent: {
-     padding: 20 
-    },
-  formGroup: { 
-    marginBottom: 18 
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.section,
+    paddingBottom: SPACING.xl,
+  },
+  formGroup: {
+    marginBottom: SPACING.lg,
   },
   row: { 
     flexDirection: "row" 
 
   },
-  label: { 
-    color: "#AAA", 
-    fontSize: 13, 
-    marginBottom: 8, 
-    fontWeight: "600" 
+  label: {
+    color: "#AAA",
+    fontSize: 13,
+    marginBottom: SPACING.sm,
+    fontWeight: "600",
   },
   input: {
     backgroundColor: "#1A1A1A",
@@ -361,7 +357,8 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 12,
   },
   footer: {
-    padding: 20,
+    padding: SPACING.screen,
+    paddingTop: SPACING.md,
     borderTopWidth: 1,
     borderColor: "#1A1A1A",
     backgroundColor: "#050505",

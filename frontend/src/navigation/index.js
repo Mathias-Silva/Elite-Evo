@@ -123,7 +123,18 @@ export default function TabNavigator() {
               tabBarIcon: ({ color }) => <HomeIcon color={color} size={24} />,
             }}
           />
-          
+          <Tab.Screen
+            name="Catálogo"
+            component={Catalog}
+            options={{
+              tabBarIcon: ({ color }) => <Grid color={color} size={24} />,
+            }}
+            listeners={({ navigation }) => ({
+              tabPress: () => {
+                navigation.setParams({ category: undefined, fromScreen: undefined });
+              },
+            })}
+          />
           <Tab.Screen
             name="Cart"
             component={CartStackNavigator}
@@ -169,6 +180,11 @@ export default function TabNavigator() {
             options={{
               tabBarIcon: ({ color }) => <Grid color={color} size={24} />,
             }}
+            listeners={({ navigation }) => ({
+              tabPress: () => {
+                navigation.setParams({ category: undefined, fromScreen: undefined });
+              },
+            })}
           />
           <Tab.Screen
             name="Cart"

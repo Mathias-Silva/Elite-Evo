@@ -19,6 +19,7 @@ import { addItem } from "../store/cartSlice";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import productImages from "../utils/productImages";
+import { SPACING } from "../theme";
 
 productImages;
 
@@ -196,8 +197,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.lg,
   },
   headerTitle: {
     color: "#FFF",
@@ -233,15 +235,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.lg,
   },
   card: {
     flexDirection: "row",
     backgroundColor: "#121212",
     borderRadius: 20,
-    padding: 15,
-    marginBottom: 15,
+    padding: SPACING.md,
+    marginBottom: SPACING.block,
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#1A1A1A",

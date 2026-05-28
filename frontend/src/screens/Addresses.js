@@ -9,17 +9,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  MapPin,
-  Plus,
-  Trash2,
-  Edit3,
-  ArrowBack,
-  ChevronLeft,
-} from "lucide-react-native";
+import { MapPin, Plus, Trash2, Edit3 } from "lucide-react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { ScreenBody } from "../components/ScreenBody";
+import { SPACING } from "../theme";
 
 export default function AddressesScreen() {
   const navigation = useNavigation();
@@ -106,22 +102,19 @@ export default function AddressesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <ChevronLeft color="#FFF" size={28} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Meus Endereços</Text>
-        <View style={{ width: 28 }} />
-      </View>
+      <ScreenHeader
+        title="Meus Endereços"
+        onBack={() => navigation.goBack()}
+      />
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#FF6B00" />
-        </View>
+        <ScreenBody>
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color="#FF6B00" />
+          </View>
+        </ScreenBody>
       ) : addresses.length === 0 ? (
+        <ScreenBody>
         <View style={styles.center}>
           <MapPin color="#333" size={80} style={{ marginBottom: 20 }} />
           <Text style={styles.emptyText}>Nenhum endereço cadastrado</Text>
@@ -136,12 +129,13 @@ export default function AddressesScreen() {
             <Text style={styles.btnText}>Cadastrar Novo Endereço</Text>
           </TouchableOpacity>
         </View>
+        </ScreenBody>
       ) : (
-        <>
+        <ScreenBody noTopPadding style={{ paddingTop: 0 }}>
           <FlatList
             data={addresses}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={styles.listContent}
             renderItem={renderAddress}
           />
           <View style={styles.footer}>
@@ -153,7 +147,7 @@ export default function AddressesScreen() {
               <Text style={styles.btnText}>Adicionar Outro Endereço</Text>
             </TouchableOpacity>
           </View>
-        </>
+        </ScreenBody>
       )}
     </SafeAreaView>
   );
@@ -181,24 +175,30 @@ const styles = StyleSheet.create({
     fontSize: 20, 
     fontWeight: "bold" 
   },
+  listContent: {
+    paddingHorizontal: SPACING.screen,
+    paddingTop: SPACING.section,
+    paddingBottom: SPACING.md,
+  },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 30,
+    padding: SPACING.xl,
   },
   emptyText: {
     color: "#FFF",
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: SPACING.block,
   },
   emptySub: {
     color: "#666",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: SPACING.xl,
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 22,
+    paddingHorizontal: SPACING.md,
   },
   primaryButton: {
     backgroundColor: "#FF6B00",
@@ -216,15 +216,16 @@ const styles = StyleSheet.create({
      marginLeft: 10 
     },
   footer: { 
-    padding: 20, 
+    padding: SPACING.screen,
+    paddingTop: SPACING.md,
     borderTopWidth: 1, 
-    borderColor: "#1A1A1A"
-   },
+    borderColor: "#1A1A1A",
+  },
   card: {
     backgroundColor: "#121212",
     borderRadius: 16,
-    padding: 15,
-    marginBottom: 15,
+    padding: SPACING.md,
+    marginBottom: SPACING.block,
     borderWidth: 1,
     borderColor: "#1A1A1A",
     flexDirection: "row",
