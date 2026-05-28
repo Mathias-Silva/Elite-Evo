@@ -159,7 +159,8 @@ const CartItem = ({ item }) => {
 export default function Cart() {
   const navigation = useNavigation();
   const { isLoggedIn } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const backButtonTextColor = isDarkMode ? colors.primary : "#000";
   const { items, totalAmount } = useSelector((state) => state.cart);
 
   const handleCheckout = () => {
@@ -224,10 +225,16 @@ export default function Cart() {
           <ShoppingBag color={colors.border} size={100} />
           <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Seu carrinho está vazio</Text>
           <TouchableOpacity
-            style={[styles.backBtn, { backgroundColor: colors.cardBackground }]}
+            style={[
+              styles.backBtn,
+              {
+                backgroundColor: isDarkMode ? colors.cardBackground : colors.primary,
+                borderColor: isDarkMode ? colors.border : colors.primary,
+              },
+            ]}
             onPress={() => navigation.navigate("Catálogo")}
           >
-            <Text style={styles.backBtnText}>Voltar às compras</Text>
+            <Text style={[styles.backBtnText, { color: backButtonTextColor }]}>Voltar às compras</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -373,6 +380,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 35,
     borderRadius: 30,
+    borderWidth: 1,
   },
   backBtnText: {
     color: "#FFF",

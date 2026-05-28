@@ -283,7 +283,13 @@ const showToast = (message) => {
             const isFav = favoriteIds.has(item.id);
             return (
               <TouchableOpacity
-                style={styles.productCard}
+                style={[
+                  styles.productCard,
+                  {
+                    backgroundColor: isDarkMode ? colors.cardBackground : "#FFFFFF",
+                    borderColor: colors.border,
+                  },
+                ]}
                 activeOpacity={0.85}
                 onPress={() => handleOpenProduct(item)}
               >

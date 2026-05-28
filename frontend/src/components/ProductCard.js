@@ -34,7 +34,10 @@ export function ProductCard({ data }) {
     <View
       style={[
         styles.productCard,
-        { backgroundColor: colors.cardBackground, borderColor: colors.border },
+        {
+          backgroundColor: isDarkMode ? colors.cardBackground : "#FFFFFF",
+          borderColor: colors.border,
+        },
       ]}
     >
 

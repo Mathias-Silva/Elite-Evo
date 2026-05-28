@@ -18,12 +18,15 @@ import { addItem } from "../store/cartSlice";
 import { addFavorite, removeFavorite } from "../store/favoritesSlice";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SPACING } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 import productImages from "../utils/productImages";
 
 export default function ProductDetail() {
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
+  const { colors, isDarkMode } = useTheme();
+  const addButtonTextColor = isDarkMode ? "#FFF" : "#000";
   const product = route.params?.product;
 
   const favoriteItems = useSelector((state) => state.favorites.items);
@@ -71,10 +74,13 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={["top", "left", "right"]}
+      >
         <ScreenHeader title="Produto" onBack={handleBack} />
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyTitle}>Produto não encontrado</Text>
+          <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>Produto não encontrado</Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={handleBack}>
             <Text style={styles.emptyBtnText}>Voltar para produtos</Text>
           </TouchableOpacity>
@@ -89,7 +95,10 @@ export default function ProductDetail() {
       : productImages.whey_isolate;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={["top", "left", "right"]}
+    >
       <ScreenHeader
         title="Detalhes"
         subtitle={product.category}
@@ -111,7 +120,12 @@ export default function ProductDetail() {
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.imagePanel}>
+        <View
+          style={[
+            styles.imagePanel,
+            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+          ]}
+        >
           {product.tag && product.tag !== "NULL" ? (
             <View
               style={[
@@ -128,11 +142,11 @@ export default function ProductDetail() {
         <View style={styles.infoSection}>
           <View style={styles.titleRow}>
             <View style={styles.titleBlock}>
-              <Text style={styles.productName}>{product.name}</Text>
-              <Text style={styles.productFlavor}>{product.flavor}</Text>
+              <Text style={[styles.productName, { color: colors.textPrimary }]}>{product.name}</Text>
+              <Text style={[styles.productFlavor, { color: colors.textSecondary }]}>{product.flavor}</Text>
             </View>
 
-            <View style={styles.ratingBadge}>
+            <View style={[styles.ratingBadge, { backgroundColor: colors.secondary }]}>
               <Star color="#FFB800" fill="#FFB800" size={14} />
               <Text style={styles.ratingText}>{product.rating}</Text>
             </View>
@@ -140,7 +154,7 @@ export default function ProductDetail() {
 
           <View style={styles.priceBox}>
             {product.oldPrice ? (
-              <Text style={styles.oldPrice}>
+              <Text style={[styles.oldPrice, { color: colors.textSecondary }]}>
                 R$ {product.oldPrice.toFixed(2).replace(".", ",")}
               </Text>
             ) : null}
@@ -149,31 +163,42 @@ export default function ProductDetail() {
             </Text>
           </View>
 
-          <View style={styles.detailBlock}>
-            <Text style={styles.blockTitle}>Informações</Text>
-            <View style={styles.infoLine}>
-              <Text style={styles.infoLabel}>Categoria</Text>
-              <Text style={styles.infoValue}>{product.category || "Produto"}</Text>
+          <View
+            style={[
+              styles.detailBlock,
+              { backgroundColor: colors.cardBackground, borderColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.blockTitle, { color: colors.textPrimary }]}>Informações</Text>
+            <View style={[styles.infoLine, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Categoria</Text>
+              <Text style={[styles.infoValue, { color: colors.textPrimary }]}>{product.category || "Produto"}</Text>
             </View>
-            <View style={styles.infoLine}>
-              <Text style={styles.infoLabel}>Sabor</Text>
-              <Text style={styles.infoValue}>{product.flavor || "Tradicional"}</Text>
+            <View style={[styles.infoLine, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Sabor</Text>
+              <Text style={[styles.infoValue, { color: colors.textPrimary }]}>{product.flavor || "Tradicional"}</Text>
             </View>
-            <View style={styles.infoLine}>
-              <Text style={styles.infoLabel}>Avaliação</Text>
-              <Text style={styles.infoValue}>{product.rating} de 5</Text>
+            <View style={[styles.infoLine, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Avaliação</Text>
+              <Text style={[styles.infoValue, { color: colors.textPrimary }]}>{product.rating} de 5</Text>
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.secondaryBtn} onPress={handleBack}>
-          <Text style={styles.secondaryBtnText}>Voltar</Text>
+      <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+        <TouchableOpacity
+          style={[
+            styles.secondaryBtn,
+            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+          ]}
+          onPress={handleBack}
+        >
+          <Text style={[styles.secondaryBtnText, { color: colors.textPrimary }]}>Voltar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.primaryBtn} onPress={handleAddToCart}>
-          <ShoppingCart color="#FFF" size={18} />
-          <Text style={styles.primaryBtnText}>Adicionar</Text>
+          <ShoppingCart color={addButtonTextColor} size={18} />
+          <Text style={[styles.primaryBtnText, { color: addButtonTextColor }]}>Adicionar</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

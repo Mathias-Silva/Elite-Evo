@@ -30,12 +30,15 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useDispatch } from "react-redux";
 import { removeFavorite, updateFavorite } from "../store/favoritesSlice";
 import { removeItem, updateItem } from "../store/cartSlice";
+import { useTheme } from "../context/ThemeContext";
 import productImages from "../utils/productImages";
 
 export default function AdminScreen() {
   const { setIsLoggedIn, setUser, user } = useAuth();
   const db = useSQLiteContext();
   const dispatch = useDispatch();
+  const { colors, isDarkMode } = useTheme();
+  const buttonTextColor = isDarkMode ? "#FFF" : "#000";
   const [tab, setTab] = useState("products");
   const [items, setItems] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -247,14 +250,17 @@ export default function AdminScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* HEADER */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>Painel Admin</Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Painel Admin</Text>
           <Text style={styles.subtitle}>Elite Evo Gestão</Text>
         </View>
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+        <TouchableOpacity
+          style={[styles.logoutBtn, { backgroundColor: colors.cardBackground }]}
+          onPress={handleLogout}
+        >
           <LogOut color="#FF6B00" size={24} />
         </TouchableOpacity>
       </View>
@@ -262,23 +268,41 @@ export default function AdminScreen() {
       {/* TABS */}
       <View style={styles.tabBar}>
         <TouchableOpacity
-          style={[styles.tab, tab === "products" && styles.activeTab]}
+          style={[
+            styles.tab,
+            { borderBottomColor: tab === "products" ? colors.primary : colors.border },
+          ]}
           onPress={() => setTab("products")}
         >
-          <Package color={tab === "products" ? "#FF6B00" : "#666"} size={20} />
+          <Package
+            color={tab === "products" ? colors.primary : colors.textSecondary}
+            size={20}
+          />
           <Text
-            style={[styles.tabText, tab === "products" && styles.activeTabText]}
+            style={[
+              styles.tabText,
+              { color: tab === "products" ? colors.textPrimary : colors.textSecondary },
+            ]}
           >
             Produtos
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, tab === "users" && styles.activeTab]}
+          style={[
+            styles.tab,
+            { borderBottomColor: tab === "users" ? colors.primary : colors.border },
+          ]}
           onPress={() => setTab("users")}
         >
-          <Users color={tab === "users" ? "#FF6B00" : "#666"} size={20} />
+          <Users
+            color={tab === "users" ? colors.primary : colors.textSecondary}
+            size={20}
+          />
           <Text
-            style={[styles.tabText, tab === "users" && styles.activeTabText]}
+            style={[
+              styles.tabText,
+              { color: tab === "users" ? colors.textPrimary : colors.textSecondary },
+            ]}
           >
             Usuários
           </Text>
@@ -294,8 +318,8 @@ export default function AdminScreen() {
             setModalVisible(true);
           }}
         >
-          <Plus color="#FFF" size={20} />
-          <Text style={styles.openModalBtnText}>Novo Produto</Text>
+          <Plus color={buttonTextColor} size={20} />
+          <Text style={[styles.openModalBtnText, { color: buttonTextColor }]}>Novo Produto</Text>
         </TouchableOpacity>
       )}
 
@@ -307,7 +331,10 @@ export default function AdminScreen() {
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.listItem}
+              style={[
+                styles.listItem,
+                { backgroundColor: colors.cardBackground, borderColor: colors.border },
+              ]}
               onPress={() => handleItemPress(item)}
               activeOpacity={0.7}
             >
@@ -319,19 +346,24 @@ export default function AdminScreen() {
                       : productImages[item.image] ||
                         require("../assets/creatina.png")
                   }
-                  style={styles.itemImage}
+                  style={[styles.itemImage, { backgroundColor: colors.secondary }]}
                 />
               ) : (
-                <View style={styles.userIconContainer}>
+                <View
+                  style={[
+                    styles.userIconContainer,
+                    { backgroundColor: colors.secondary, borderColor: colors.border },
+                  ]}
+                >
                   <User color="#FF6B00" size={24} />
                 </View>
               )}
 
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.itemName}>{item.name || item.email}</Text>
+                <Text style={[styles.itemName, { color: colors.textPrimary }]}>{item.name || item.email}</Text>
                 <View style={styles.itemBadgeRow}>
                   {tab === "products" && item.price && (
-                    <Text style={styles.itemPrice}>
+                    <Text style={[styles.itemPrice, { color: colors.textSecondary }]}>
                       R$ {parseFloat(item.price).toFixed(2)}
                     </Text>
                   )}
@@ -341,7 +373,7 @@ export default function AdminScreen() {
                     </View>
                   )}
                   {tab === "users" && (
-                    <Text style={styles.itemUserEmail}>{item.email}</Text>
+                    <Text style={[styles.itemUserEmail, { color: colors.textSecondary }]}>{item.email}</Text>
                   )}
                 </View>
               </View>
@@ -375,9 +407,15 @@ export default function AdminScreen() {
         onRequestClose={resetForm}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.addArea, isEditing && styles.editAreaBorder]}>
+          <View
+            style={[
+              styles.addArea,
+              { backgroundColor: colors.cardBackground, borderColor: colors.border },
+              isEditing && styles.editAreaBorder,
+            ]}
+          >
             <View style={styles.rowBetween}>
-              <Text style={styles.formTitle}>
+              <Text style={[styles.formTitle, { color: colors.textPrimary }]}>
                 {isEditing ? "Editando Produto" : "Novo Produto"}
               </Text>
               <TouchableOpacity onPress={resetForm}>
@@ -386,7 +424,10 @@ export default function AdminScreen() {
             </View>
 
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary },
+              ]}
               placeholder="Nome do Produto"
               placeholderTextColor="#666"
               value={newProduct.name}
@@ -395,7 +436,15 @@ export default function AdminScreen() {
 
             <View style={styles.row}>
               <TextInput
-                style={[styles.input, { flex: 1 }]}
+                style={[
+                  styles.input,
+                  {
+                    flex: 1,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholder="Preço"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
@@ -403,7 +452,15 @@ export default function AdminScreen() {
                 onChangeText={(t) => setNewProduct({ ...newProduct, price: t })}
               />
               <TextInput
-                style={[styles.input, { flex: 1 }]}
+                style={[
+                  styles.input,
+                  {
+                    flex: 1,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
                 placeholder="Sabor/Info"
                 placeholderTextColor="#666"
                 value={newProduct.flavor}
@@ -414,7 +471,10 @@ export default function AdminScreen() {
             </View>
 
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary },
+              ]}
               placeholder="URL da Imagem"
               placeholderTextColor="#666"
               value={newProduct.image}
@@ -423,7 +483,7 @@ export default function AdminScreen() {
 
             {newProduct.image ? (
               <View style={{ alignItems: "center", marginBottom: 10 }}>
-                <Text style={styles.label}>Preview:</Text>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>Preview:</Text>
                 <Image
                   source={
                     newProduct.image.startsWith("http")
@@ -435,7 +495,7 @@ export default function AdminScreen() {
               </View>
             ) : null}
 
-            <Text style={styles.label}>Status:</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Status:</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -446,6 +506,7 @@ export default function AdminScreen() {
                   key={tag}
                   style={[
                     styles.tagOption,
+                    { backgroundColor: colors.surface, borderColor: colors.border },
                     newProduct.tag === tag && styles.tagSelected,
                   ]}
                   onPress={() => setNewProduct({ ...newProduct, tag: tag })}
@@ -453,6 +514,7 @@ export default function AdminScreen() {
                   <Text
                     style={[
                       styles.tagOptionText,
+                      { color: colors.textSecondary },
                       newProduct.tag === tag && { color: "#FFF" },
                     ]}
                   >
@@ -491,15 +553,20 @@ export default function AdminScreen() {
       >
         <View style={styles.modalOverlay}>
           {selectedProduct && (
-            <View style={styles.detailContainer}>
+            <View
+              style={[
+                styles.detailContainer,
+                { backgroundColor: colors.cardBackground, borderColor: colors.border },
+              ]}
+            >
               <View style={styles.rowBetween}>
-                <Text style={styles.detailTitle}>Detalhes do Produto</Text>
+                <Text style={[styles.detailTitle, { color: colors.textPrimary }]}>Detalhes do Produto</Text>
                 <TouchableOpacity onPress={() => setDetailModalVisible(false)}>
                   <XCircle color="#666" size={24} />
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.detailInfoBox}>
+              <View style={[styles.detailInfoBox, { backgroundColor: colors.surface }]}>
                 <Image
                   source={
                     selectedProduct.image &&
@@ -508,21 +575,21 @@ export default function AdminScreen() {
                       : productImages[selectedProduct.image] ||
                         require("../assets/creatina.png")
                   }
-                  style={styles.detailImage}
+                  style={[styles.detailImage, { backgroundColor: colors.secondary }]}
                 />
 
-                <Text style={styles.detailLabel}>Nome do Produto:</Text>
-                <Text style={styles.detailValue}>{selectedProduct.name}</Text>
+                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Nome do Produto:</Text>
+                <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedProduct.name}</Text>
 
                 <View style={styles.row}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.detailLabel}>Preço:</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Preço:</Text>
                     <Text style={[styles.detailValue, { color: "#FF6B00" }]}>
                       R$ {parseFloat(selectedProduct.price).toFixed(2)}
                     </Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.detailLabel}>Status / Tag:</Text>
+                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Status / Tag:</Text>
                     <View
                       style={[
                         styles.tagBadge,
@@ -541,10 +608,10 @@ export default function AdminScreen() {
                   </View>
                 </View>
 
-                <Text style={styles.detailLabel}>
+                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
                   Sabor / Informações adicionais:
                 </Text>
-                <Text style={styles.detailValue}>
+                <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
                   {selectedProduct.flavor || "Não informado"}
                 </Text>
               </View>
@@ -554,15 +621,15 @@ export default function AdminScreen() {
                   style={[
                     styles.detailActionBtn,
                     {
-                      backgroundColor: "#1A1A1A",
+                      backgroundColor: colors.surface,
                       borderWidth: 1,
-                      borderColor: "#333",
+                      borderColor: colors.border,
                     },
                   ]}
                   onPress={() => startEdit(selectedProduct)}
                 >
                   <Edit3 color="#FF6B00" size={18} />
-                  <Text style={[styles.detailActionText, { color: "#FFF" }]}>
+                  <Text style={[styles.detailActionText, { color: colors.textPrimary }]}>
                     Editar
                   </Text>
                 </TouchableOpacity>
@@ -598,9 +665,14 @@ export default function AdminScreen() {
       >
         <View style={styles.modalOverlay}>
           {selectedUser && (
-            <View style={styles.detailContainer}>
+            <View
+              style={[
+                styles.detailContainer,
+                { backgroundColor: colors.cardBackground, borderColor: colors.border },
+              ]}
+            >
               <View style={styles.rowBetween}>
-                <Text style={styles.detailTitle}>Ficha do Usuário</Text>
+                <Text style={[styles.detailTitle, { color: colors.textPrimary }]}>Ficha do Usuário</Text>
                 <TouchableOpacity
                   onPress={() => setUserDetailModalVisible(false)}
                 >
@@ -608,10 +680,11 @@ export default function AdminScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.detailInfoBox}>
+              <View style={[styles.detailInfoBox, { backgroundColor: colors.surface }]}>
                 <View
                   style={[
                     styles.userIconContainer,
+                    { backgroundColor: colors.secondary, borderColor: colors.border },
                     {
                       alignSelf: "center",
                       width: 70,
@@ -624,17 +697,17 @@ export default function AdminScreen() {
                   <User color="#FF6B00" size={36} />
                 </View>
 
-                <Text style={styles.detailLabel}>Nome Completo:</Text>
-                <Text style={styles.detailValue}>
+                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Nome Completo:</Text>
+                <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
                   {selectedUser.name || "Não cadastrado"}
                 </Text>
 
-                <Text style={styles.detailLabel}>E-mail de Acesso:</Text>
-                <Text style={styles.detailValue}>{selectedUser.email}</Text>
+                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>E-mail de Acesso:</Text>
+                <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{selectedUser.email}</Text>
 
-                <Text style={styles.detailLabel}>ID do Sistema:</Text>
+                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>ID do Sistema:</Text>
                 <Text
-                  style={[styles.detailValue, { color: "#666", fontSize: 13 }]}
+                  style={[styles.detailValue, { color: colors.textSecondary, fontSize: 13 }]}
                 >
                   #{selectedUser.id}
                 </Text>
@@ -724,7 +797,12 @@ const styles = StyleSheet.create({
   },
 
   // Área de Criação/Edição
-  addArea: { backgroundColor: "#1A1A1A", padding: 20, borderRadius: 15 },
+  addArea: {
+    backgroundColor: "#1A1A1A",
+    padding: 20,
+    borderRadius: 15,
+    borderWidth: 1,
+  },
   editAreaBorder: { borderWidth: 1, borderColor: "#28a745" },
   formTitle: { color: "#FFF", fontWeight: "bold", fontSize: 18 },
   rowBetween: {
@@ -817,6 +895,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginBottom: 10,
+    borderWidth: 1,
   },
   itemImage: {
     width: 50,
