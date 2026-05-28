@@ -13,12 +13,14 @@ import { useAuth } from "../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SPACING } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const db = useSQLiteContext();
   const { setIsLoggedIn, setUser } = useAuth();
+  const { colors } = useTheme();
 
   async function handleLogin() {
     Keyboard.dismiss();
@@ -54,13 +56,13 @@ export default function LoginScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Entrar" onBack={() => navigation.goBack()} />
       <View style={styles.content}>
         <Text style={styles.logo}>ELITE EVO</Text>
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.textPrimary }]}
           placeholder="E-mail"
           placeholderTextColor="#666"
           keyboardType="email-address"
@@ -70,7 +72,7 @@ export default function LoginScreen({ navigation }) {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.textPrimary }]}
           placeholder="Senha"
           placeholderTextColor="#666"
           secureTextEntry
@@ -81,7 +83,7 @@ export default function LoginScreen({ navigation }) {
           onPress={() => navigation.navigate("ForgotPassword")}
           style={{ alignSelf: "flex-end", marginBottom: 20, marginRight: 5 }}
         >
-          <Text style={{ color: "#888", fontSize: 14 }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
             Esqueci minha senha
           </Text>
         </TouchableOpacity>
@@ -91,7 +93,7 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-          <Text style={styles.linkText}>
+          <Text style={[styles.linkText, { color: colors.textSecondary }]}>
             Novo por aqui? <Text style={styles.highlight}>Crie uma conta</Text>
           </Text>
         </TouchableOpacity>

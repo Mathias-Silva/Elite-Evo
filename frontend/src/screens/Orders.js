@@ -12,14 +12,16 @@ import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
 import { ScreenHeader } from "../components/ScreenHeader";
-import { COLORS, SPACING } from "../theme";
+import { SPACING } from "../theme";
 import { Package, ChevronRight, ShoppingBag } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function OrdersScreen() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const db = useSQLiteContext();
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,14 +65,17 @@ export default function OrdersScreen() {
 
   const renderOrderItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.orderCard}
+      style={[
+        styles.orderCard,
+        { backgroundColor: colors.cardBackground, borderColor: colors.border },
+      ]}
       activeOpacity={0.8}
       onPress={() => navigation.navigate("OrderDetails", { orderId: item.id })}
     >
-      <View style={styles.cardHeader}>
+      <View style={[styles.cardHeader, { borderBottomColor: colors.border }]}>
         <View style={styles.orderInfo}>
-          <Package color={COLORS.primary} size={20} />
-          <Text style={styles.orderNumber}>Pedido #{item.orderNumber}</Text>
+          <Package color={colors.primary} size={20} />
+          <Text style={[styles.orderNumber, { color: colors.textPrimary }]}>Pedido #{item.orderNumber}</Text>
         </View>
         <View style={styles.statusBadge}>
           <Text style={styles.statusText}>APROVADO</Text>
@@ -79,25 +84,25 @@ export default function OrdersScreen() {
 
       <View style={styles.cardBody}>
         <View>
-          <Text style={styles.label}>Data</Text>
-          <Text style={styles.value}>{formatDate(item.createdAt)}</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
+          <Text style={[styles.value, { color: colors.textPrimary }]}>{formatDate(item.createdAt)}</Text>
         </View>
         <View style={styles.priceContainer}>
-          <Text style={styles.label}>Total</Text>
-          <Text style={styles.priceValue}>{formatPrice(item.totalAmount)}</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Total</Text>
+          <Text style={[styles.priceValue, { color: colors.primary }]}>{formatPrice(item.totalAmount)}</Text>
         </View>
-        <ChevronRight color="#666" size={20} />
+        <ChevronRight color={colors.textSecondary} size={20} />
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Meus Pedidos" onBack={() => navigation.goBack()} />
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator color={COLORS.primary} size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>
       ) : orders.length > 0 ? (
         <FlatList
@@ -109,15 +114,20 @@ export default function OrdersScreen() {
         />
       ) : (
         <View style={styles.emptyContainer}>
-          <View style={styles.emptyIconBg}>
-            <ShoppingBag color="#333" size={60} />
+          <View
+            style={[
+              styles.emptyIconBg,
+              { backgroundColor: colors.cardBackground, borderColor: colors.border },
+            ]}
+          >
+            <ShoppingBag color={colors.border} size={60} />
           </View>
-          <Text style={styles.emptyTitle}>Nenhum pedido feito</Text>
-          <Text style={styles.emptySubtitle}>
+          <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>Nenhum pedido feito</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
             Você ainda não realizou nenhuma compra em nossa loja.
           </Text>
           <TouchableOpacity
-            style={styles.shopBtn}
+            style={[styles.shopBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
             onPress={() => navigation.navigate("Início")}
           >
             <Text style={styles.shopBtnText}>COMEÇAR A COMPRAR</Text>
@@ -131,7 +141,7 @@ export default function OrdersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#000",
   },
   loadingContainer: {
     flex: 1,
@@ -144,7 +154,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.xl,
   },
   orderCard: {
-    backgroundColor: COLORS.cardBackground,
+    backgroundColor: "#1A1A1A",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -166,7 +176,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   orderNumber: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 15,
     fontWeight: "bold",
   },
@@ -177,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: {
-    color: COLORS.success,
+    color: "#00C853",
     fontSize: 11,
     fontWeight: "bold",
   },
@@ -187,12 +197,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   label: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 12,
     marginBottom: 4,
   },
   value: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 14,
     fontWeight: "500",
   },
@@ -202,7 +212,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   priceValue: {
-    color: COLORS.primary,
+    color: "#FF6B00",
     fontSize: 18,
     fontWeight: "bold",
   },
@@ -224,24 +234,24 @@ const styles = StyleSheet.create({
     borderColor: "#1A1A1A",
   },
   emptyTitle: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 8,
   },
   emptySubtitle: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 14,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 30,
   },
   shopBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#FF6B00",
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 30,
-    shadowColor: COLORS.primary,
+    shadowColor: "#FF6B00",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

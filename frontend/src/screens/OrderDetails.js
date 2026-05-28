@@ -11,14 +11,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import { ScreenHeader } from "../components/ScreenHeader";
-import { COLORS, SPACING } from "../theme";
+import { SPACING } from "../theme";
 import productImages from "../utils/productImages";
 import { Calendar, MapPin, Package, CreditCard } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function OrderDetailsScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const db = useSQLiteContext();
+  const { colors } = useTheme();
   const { orderId } = route.params || {};
 
   const [order, setOrder] = useState(null);
@@ -77,10 +79,10 @@ export default function OrderDetailsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <ScreenHeader title="Detalhes do Pedido" onBack={() => navigation.goBack()} />
         <View style={styles.centerContainer}>
-          <ActivityIndicator color={COLORS.primary} size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>
       </SafeAreaView>
     );
@@ -88,28 +90,28 @@ export default function OrderDetailsScreen() {
 
   if (!order) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <ScreenHeader title="Detalhes do Pedido" onBack={() => navigation.goBack()} />
         <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>Pedido não encontrado.</Text>
+          <Text style={[styles.errorText, { color: colors.textSecondary }]}>Pedido não encontrado.</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Detalhes do Pedido" onBack={() => navigation.goBack()} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Card Resumo do Pedido */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <View style={styles.cardHeader}>
             <View>
-              <Text style={styles.orderNumber}>Pedido #{order.orderNumber}</Text>
+              <Text style={[styles.orderNumber, { color: colors.textPrimary }]}>Pedido #{order.orderNumber}</Text>
               <View style={styles.dateRow}>
-                <Calendar color={COLORS.textSecondary} size={14} />
-                <Text style={styles.dateText}>{formatDate(order.createdAt)}</Text>
+                <Calendar color={colors.textSecondary} size={14} />
+                <Text style={[styles.dateText, { color: colors.textSecondary }]}>{formatDate(order.createdAt)}</Text>
               </View>
             </View>
             <View style={styles.statusBadge}>
@@ -117,46 +119,46 @@ export default function OrderDetailsScreen() {
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Valor Total:</Text>
+            <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Valor Total:</Text>
             <Text style={styles.priceValue}>{formatPrice(order.totalAmount)}</Text>
           </View>
         </View>
 
         {/* Card Endereço de Entrega */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
-            <MapPin color={COLORS.primary} size={18} />
-            <Text style={styles.sectionTitle}>Endereço de Entrega</Text>
+            <MapPin color={colors.primary} size={18} />
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Endereço de Entrega</Text>
           </View>
-          <Text style={styles.addressText}>
+          <Text style={[styles.addressText, { color: colors.textSecondary }]}>
             {order.shippingAddress || "Nenhum endereço cadastrado para este pedido."}
           </Text>
         </View>
 
         {/* Card Pagamento */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
-            <CreditCard color={COLORS.primary} size={18} />
-            <Text style={styles.sectionTitle}>Método de Pagamento</Text>
+            <CreditCard color={colors.primary} size={18} />
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Método de Pagamento</Text>
           </View>
-          <Text style={styles.paymentText}>Mercado Pago (Cartão / Pix)</Text>
+          <Text style={[styles.paymentText, { color: colors.textSecondary }]}>Mercado Pago (Cartão / Pix)</Text>
         </View>
 
         {/* Lista de Produtos */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
-            <Package color={COLORS.primary} size={18} />
-            <Text style={styles.sectionTitle}>Produtos inclusos ({items.length})</Text>
+            <Package color={colors.primary} size={18} />
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Produtos inclusos ({items.length})</Text>
           </View>
 
           {items.map((item, index) => (
             <View key={item.id.toString()}>
-              {index > 0 && <View style={styles.itemDivider} />}
+              {index > 0 && <View style={[styles.itemDivider, { backgroundColor: colors.border }]} />}
               <View style={styles.productItem}>
-                <View style={styles.imageContainer}>
+                <View style={[styles.imageContainer, { backgroundColor: colors.secondary, borderColor: colors.border }]}>
                   <Image
                     source={productImages[item.image] || productImages['whey_isolate']}
                     style={styles.productImg}
@@ -164,17 +166,17 @@ export default function OrderDetailsScreen() {
                   />
                 </View>
                 <View style={styles.productDetails}>
-                  <Text style={styles.productName}>{item.productName}</Text>
+                  <Text style={[styles.productName, { color: colors.textPrimary }]}>{item.productName}</Text>
                   {item.flavor ? (
-                    <Text style={styles.productFlavor}>Sabor: {item.flavor}</Text>
+                    <Text style={[styles.productFlavor, { color: colors.textSecondary }]}>Sabor: {item.flavor}</Text>
                   ) : null}
                   <View style={styles.qtyPriceRow}>
-                    <Text style={styles.productQty}>Qtd: {item.quantity}</Text>
-                    <Text style={styles.productPrice}>
+                    <Text style={[styles.productQty, { color: colors.textSecondary }]}>Qtd: {item.quantity}</Text>
+                    <Text style={[styles.productPrice, { color: colors.textPrimary }]}>
                       {formatPrice(item.price)}
                     </Text>
                   </View>
-                  <Text style={styles.subtotalText}>
+                  <Text style={[styles.subtotalText, { color: colors.primary }]}>
                     Subtotal: {formatPrice(item.price * item.quantity)}
                   </Text>
                 </View>
@@ -190,7 +192,7 @@ export default function OrderDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#000",
   },
   centerContainer: {
     flex: 1,
@@ -204,7 +206,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: COLORS.cardBackground,
+    backgroundColor: "#1A1A1A",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -217,7 +219,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   orderNumber: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 6,
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dateText: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 12,
   },
   statusBadge: {
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: {
-    color: COLORS.success,
+    color: "#00C853",
     fontSize: 11,
     fontWeight: "bold",
   },
@@ -253,11 +255,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   priceLabel: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 14,
   },
   priceValue: {
-    color: COLORS.primary,
+    color: "#FF6B00",
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -268,18 +270,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 14,
     fontWeight: "bold",
     textTransform: "uppercase",
   },
   addressText: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 14,
     lineHeight: 20,
   },
   paymentText: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 14,
   },
   productItem: {
@@ -310,12 +312,12 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   productName: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 14,
     fontWeight: "bold",
   },
   productFlavor: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 12,
     marginTop: 2,
   },
@@ -326,23 +328,23 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   productQty: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 13,
   },
   productPrice: {
-    color: COLORS.textPrimary,
+    color: "#FFF",
     fontSize: 13,
     fontWeight: "500",
   },
   subtotalText: {
-    color: COLORS.primary,
+    color: "#FF6B00",
     fontSize: 13,
     fontWeight: "bold",
     alignSelf: "flex-end",
     marginTop: 4,
   },
   errorText: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 16,
   },
 });

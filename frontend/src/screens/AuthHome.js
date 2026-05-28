@@ -1,13 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../context/ThemeContext';
 
 export default function AuthHomeScreen({ navigation }) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         <Text style={styles.logo}>ELITE EVO</Text>
-        <Text style={styles.subtitle}>Sua melhor versão começa aqui.</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Sua melhor versão começa aqui.</Text>
 
         <TouchableOpacity 
           style={styles.loginButton} 

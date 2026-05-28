@@ -18,12 +18,14 @@ import * as ImagePicker from "expo-image-picker";
 import * as Sharing from "expo-sharing";
 import { cacheDirectory, writeAsStringAsync } from "expo-file-system/legacy";
 import { useSelector } from "react-redux";
+import { useTheme } from "../context/ThemeContext";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const db = useSQLiteContext();
   const { user, setUser, setIsLoggedIn } = useAuth();
+  const { colors } = useTheme();
   const [profileImage, setProfileImage] = useState(null);
   const [ordersCount, setOrdersCount] = useState(0);
 
@@ -195,7 +197,7 @@ export default function ProfileScreen() {
   const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=FF6B00&color=fff&size=200`;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -205,9 +207,9 @@ export default function ProfileScreen() {
           <View style={{ width: 24 }} />
           <Text style={styles.brand}>ELITE EVO</Text>
           <TouchableOpacity
-            onPress={() => Alert.alert("Configurações", "Em breve...")}
+            onPress={() => navigation.navigate("Settings")}
           >
-            <Ionicons name="settings-outline" size={22} color="white" />
+            <Ionicons name="settings-outline" size={22} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
@@ -225,23 +227,23 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.userName}>{user?.name || "Usuário"}</Text>
+          <Text style={[styles.userName, { color: colors.textPrimary }]}>{user?.name || "Usuário"}</Text>
           <Text style={styles.userSub}>{user?.email || "Membro Elite"}</Text>
         </View>
 
         {/* Stats Row Dinâmicas */}
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{ordersCount}</Text>
-            <Text style={styles.statLabel}>PEDIDOS</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{ordersCount}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>PEDIDOS</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
             <Text style={[styles.statValue, { color: "#FF6B00" }]}>{points}</Text>
-            <Text style={styles.statLabel}>PONTOS</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>PONTOS</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{favoriteCount}</Text>
-            <Text style={styles.statLabel}>FAVORITOS</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{favoriteCount}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>FAVORITOS</Text>
           </View>
         </View>
 
@@ -251,21 +253,25 @@ export default function ProfileScreen() {
             icon="package-variant-closed"
             label="Meus Pedidos"
             onPress={() => navigation.navigate("Orders")}
+            colors={colors}
           />
           <MenuItem
             icon="map-marker-outline"
             label="Endereços"
             onPress={() => navigation.navigate("Addresses")}
+            colors={colors}
           />
           <MenuItem
             icon="lock-outline"
             label="Trocar Senha"
             onPress={() => navigation.navigate("ChangePassword")}
+            colors={colors}
           />
           <MenuItem
             icon="database-export"
             label="Baixar banco (.json)"
             onPress={exportDatabaseAsJson}
+            colors={colors}
           />
 
           <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
@@ -279,7 +285,7 @@ export default function ProfileScreen() {
               </View>
               <Text style={styles.logoutText}>Sair da Conta</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#444" />
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -287,13 +293,19 @@ export default function ProfileScreen() {
   );
 }
 
-const MenuItem = ({ icon, label, badge, onPress }) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+const MenuItem = ({ icon, label, badge, onPress, colors }) => (
+  <TouchableOpacity
+    style={[
+      styles.menuItem,
+      { backgroundColor: colors.cardBackground, borderColor: colors.border },
+    ]}
+    onPress={onPress}
+  >
     <View style={styles.menuLeft}>
-      <View style={styles.iconCircle}>
+      <View style={[styles.iconCircle, { backgroundColor: colors.secondary }]}>
         <MaterialCommunityIcons name={icon} size={20} color="#FF6B00" />
       </View>
-      <Text style={styles.menuText}>{label}</Text>
+      <Text style={[styles.menuText, { color: colors.textPrimary }]}>{label}</Text>
     </View>
     <View style={styles.menuRight}>
       {badge && (
@@ -301,7 +313,7 @@ const MenuItem = ({ icon, label, badge, onPress }) => (
           <Text style={styles.badgeText}>{badge}</Text>
         </View>
       )}
-      <Ionicons name="chevron-forward" size={18} color="#444" />
+      <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
     </View>
   </TouchableOpacity>
 );

@@ -19,7 +19,8 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
-import { addFavorite, removeFavorite } from "../store/favoritesSlice";
+import { addFavorite, removeFavorite, setFavorites } from "../store/favoritesSlice";
+import { useTheme } from "../context/ThemeContext";
 
 import { CategoryCard } from "../components/CategoryCard";
 import { Newsletter } from "../components/Newsletter";
@@ -53,21 +54,8 @@ const AnimatedHeart = ({ isFav, onPress, style }) => {
 
 export default function Home() {
   const isFocused = useIsFocused();
-  useEffect(() => {
-    if (isFocused) {
-      fetchProducts(); 
-      
-    }
-
-  }, [isFocused]);
-  const fetchProducts = async () => {
-    try {
-      const result = await db.getAllAsync('SELECT * FROM products ORDER BY id DESC');
-      setProducts(result);
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-    }
-  };
+  const { colors, isDarkMode } = useTheme();
+  const addButtonTextColor = isDarkMode ? "#FFF" : "#000";
   const navigation = useNavigation();
   const { user, isLoggedIn } = useAuth();
   const dispatch = useDispatch();
@@ -118,6 +106,15 @@ export default function Home() {
     setIsSearchVisible(!isSearchVisible);
   };
 
+  const fetchProducts = async () => {
+    try {
+      const result = await db.getAllAsync('SELECT * FROM products ORDER BY id DESC');
+      setProducts(result);
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+    }
+  };
+
   async function loadData() {
     try {
       const result = await db.getAllAsync("SELECT * FROM products");
@@ -131,6 +128,34 @@ export default function Home() {
 
   useEffect(() => { loadData(); }, []);
 
+  const loadFavorites = async () => {
+    if (!user?.id) {
+      dispatch(setFavorites([]));
+      return;
+    }
+
+    try {
+      const rows = await db.getAllAsync(
+        `SELECT p.*
+         FROM favorites f
+         INNER JOIN products p ON p.id = f.productId
+         WHERE f.userId = ?
+         ORDER BY f.id DESC`,
+        [user.id],
+      );
+      dispatch(setFavorites(rows));
+    } catch (error) {
+      console.error("Erro ao carregar favoritos:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchProducts();
+      loadFavorites();
+    }
+  }, [isFocused, user?.id]);
+
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
     if (Platform.OS === "android") {
@@ -138,11 +163,31 @@ export default function Home() {
     }
   };
 
-  const handleToggleFavorite = (product) => {
+  const handleToggleFavorite = async (product) => {
     if (favoriteIds.has(product.id)) {
       dispatch(removeFavorite(product.id));
+      if (user?.id) {
+        try {
+          await db.runAsync(
+            "DELETE FROM favorites WHERE userId = ? AND productId = ?",
+            [user.id, product.id],
+          );
+        } catch (error) {
+          console.error("Erro ao remover favorito:", error);
+        }
+      }
     } else {
       dispatch(addFavorite(product));
+      if (user?.id) {
+        try {
+          await db.runAsync(
+            "INSERT OR IGNORE INTO favorites (userId, productId) VALUES (?, ?)",
+            [user.id, product.id],
+          );
+        } catch (error) {
+          console.error("Erro ao salvar favorito:", error);
+        }
+      }
     }
   };
 
@@ -156,24 +201,24 @@ export default function Home() {
   );
 
   if (loading) return (
-    <View style={styles.loadingContainer}>
+    <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
       <ActivityIndicator size="large" color="#FF6B00" />
     </View>
   );
 
   return (
-   <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <View style={styles.header}>
-        <Text style={styles.logo}>
+   <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top", "left", "right"]}>
+      <View style={[styles.header, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.logo, { color: colors.textPrimary }]}>
           ELITE<Text style={{ color: "#FF6B00" }}>EVO</Text>
         </Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={toggleSearch}>
-            <Search color={isSearchVisible ? "#FF6B00" : "#FFF"} size={22} />
+            <Search color={isSearchVisible ? "#FF6B00" : colors.textPrimary} size={22} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.cartBadgeContainer} onPress={() => navigation.navigate("Cart")}>
-            <ShoppingCart color="#FFF" size={22} style={{ marginLeft: 15 }} />
+            <ShoppingCart color={colors.textPrimary} size={22} style={{ marginLeft: 15 }} />
             {cartCount > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{cartCount}</Text>
@@ -195,25 +240,25 @@ export default function Home() {
               overflow: 'hidden',
               height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 65] }),
               opacity: searchAnim,
-              backgroundColor: '#121212',
+              backgroundColor: colors.surface,
               paddingHorizontal: 20,
               justifyContent: 'center'
             }}>
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#1A1A1A',
+                backgroundColor: colors.cardBackground,
                 borderRadius: 12,
                 paddingHorizontal: 15,
                 height: 45,
                 borderWidth: 1,
-                borderColor: '#333'
+                borderColor: colors.border
               }}>
                 <Search color="#666" size={18} />
                 <TextInput
                   placeholder="O que você está procurando?"
                   placeholderTextColor="#666"
-                  style={{ flex: 1, color: '#FFF', marginLeft: 10, fontSize: 14 }}
+                  style={{ flex: 1, color: colors.textPrimary, marginLeft: 10, fontSize: 14 }}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   autoFocus={false} // Evita bugs de foco automático indesejado
@@ -240,7 +285,7 @@ export default function Home() {
             </View>
 
             <View style={{ paddingHorizontal: 20, marginBottom: 32, marginTop: 8 }}>
-              <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Categorias em Destaque</Text>
+              <Text style={[styles.sectionTitle, { marginBottom: 16, color: colors.textPrimary }]}>Categorias em Destaque</Text>
               <View style={styles.categoriesGrid}>
                 <CategoryCard
                   title="Whey Protein"
@@ -273,8 +318,8 @@ export default function Home() {
 
             <View style={styles.sectionHeader}>
               <View>
-                <Text style={styles.sectionTitle}>Os Mais Vendidos</Text>
-                <Text style={{ color: "#666", fontSize: 12 }}>Os favoritos dos nossos atletas de elite</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Os Mais Vendidos</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 12 }}>Os favoritos dos nossos atletas de elite</Text>
               </View>
               <TouchableOpacity onPress={() => goToCatalog()}>
                 <Text style={styles.viewAll}>Ver todos {">"}</Text>
@@ -286,38 +331,47 @@ export default function Home() {
         contentContainerStyle={styles.flatListContent}
         ListEmptyComponent={() => (
           <View style={{ padding: 50, alignItems: 'center' }}>
-            <Text style={{ color: '#666', fontSize: 16 }}>Nenhum produto encontrado.</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: 16 }}>Nenhum produto encontrado.</Text>
           </View>
         )}
         renderItem={({ item }) => {
           const isFav = favoriteIds.has(item.id);
           return (
-            <View style={styles.productCard}>
+            <View style={[styles.productCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
               {item.tag && item.tag !== "NULL" && (
                 <View style={[styles.tag, { backgroundColor: item.tag === "ESGOTADO" ? "#333" : "#FF6B00" }]}>
                   <Text style={styles.tagText}>{item.tag}</Text>
                 </View>
               )}
               <AnimatedHeart isFav={isFav} onPress={() => handleToggleFavorite(item)} style={styles.heartBtn} />
-              <View style={styles.imagePlaceholder}>
+              <View style={[styles.imagePlaceholder, { backgroundColor: colors.secondary }]}>
                 {item.image && productImages[item.image] ? (
                   <Image source={productImages[item.image]} style={{ width: "100%", height: "100%" }} resizeMode="contain" />
                 ) : (
                   <ActivityIndicator color="#FF6B00" />
                 )}
               </View>
-              <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-              <Text style={styles.productFlavor}>{item.flavor}</Text>
+              <Text style={[styles.productName, { color: colors.textPrimary }]} numberOfLines={1}>{item.name}</Text>
+              <Text style={[styles.productFlavor, { color: colors.textSecondary }]}>{item.flavor}</Text>
               <View style={styles.priceRow}>
                 <Text style={styles.productPrice}>R$ {item.price.toFixed(2).replace(".", ",")}</Text>
-                <View style={styles.ratingBadge}>
+                <View style={[styles.ratingBadge, { backgroundColor: colors.secondary }]}>
                   <Star color="#FFB800" fill="#FFB800" size={12} />
                   <Text style={styles.ratingText}>{item.rating}</Text>
                 </View>
               </View>
-              <TouchableOpacity style={styles.addToCartBtn} onPress={() => handleAddToCart(item)}>
-                <ShoppingCart color="#FFF" size={18} />
-                <Text style={styles.addToCartText}>Adicionar</Text>
+              <TouchableOpacity
+                style={[
+                  styles.addToCartBtn,
+                  {
+                    backgroundColor: isDarkMode ? colors.surface : colors.primary,
+                    borderColor: isDarkMode ? colors.border : colors.primary,
+                  },
+                ]}
+                onPress={() => handleAddToCart(item)}
+              >
+                <ShoppingCart color={addButtonTextColor} size={18} />
+                <Text style={[styles.addToCartText, { color: addButtonTextColor }]}>Adicionar</Text>
               </TouchableOpacity>
             </View>
           );

@@ -13,7 +13,8 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenHeader } from "../components/ScreenHeader";
-import { COLORS, SPACING } from "../theme";
+import { SPACING } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function ChangePasswordScreen({ navigation }) {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -23,6 +24,7 @@ export default function ChangePasswordScreen({ navigation }) {
 
   const db = useSQLiteContext();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   async function handleChangePassword() {
     Keyboard.dismiss();
@@ -74,15 +76,22 @@ export default function ChangePasswordScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Trocar Senha" onBack={() => navigation.goBack()} />
       <View style={styles.content}>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Digite sua senha atual e depois informe a nova senha desejada.
         </Text>
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+              color: colors.textPrimary,
+            },
+          ]}
           placeholder="Senha Atual"
           placeholderTextColor="#666"
           secureTextEntry
@@ -91,7 +100,14 @@ export default function ChangePasswordScreen({ navigation }) {
         />
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+              color: colors.textPrimary,
+            },
+          ]}
           placeholder="Nova Senha (mín. 6 caracteres)"
           placeholderTextColor="#666"
           secureTextEntry
@@ -100,7 +116,14 @@ export default function ChangePasswordScreen({ navigation }) {
         />
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+              color: colors.textPrimary,
+            },
+          ]}
           placeholder="Confirmar Nova Senha"
           placeholderTextColor="#666"
           secureTextEntry
@@ -109,12 +132,12 @@ export default function ChangePasswordScreen({ navigation }) {
         />
 
         <TouchableOpacity 
-          style={styles.button} 
+          style={[styles.button, { shadowColor: colors.primary }]} 
           onPress={handleChangePassword}
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="white" />
+            <ActivityIndicator color="#FFF" />
           ) : (
             <Text style={styles.buttonText}>ALTERAR SENHA</Text>
           )}
@@ -127,7 +150,7 @@ export default function ChangePasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#000",
   },
   content: {
     flex: 1,
@@ -135,14 +158,14 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.lg,
   },
   subtitle: {
-    color: COLORS.textSecondary,
+    color: "#A0A0A0",
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 30,
   },
   input: {
-    backgroundColor: COLORS.cardBackground,
-    color: "white",
+    backgroundColor: "#1A1A1A",
+    color: "#FFF",
     padding: 18,
     borderRadius: 12,
     marginBottom: SPACING.block,
@@ -151,19 +174,19 @@ const styles = StyleSheet.create({
     borderColor: "#252525",
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#FF6B00",
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
     marginTop: 10,
-    shadowColor: COLORS.primary,
+    shadowColor: "#FF6B00",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   buttonText: {
-    color: "white",
+    color: "#FFF",
     fontWeight: "bold",
     fontSize: 16,
     letterSpacing: 1,

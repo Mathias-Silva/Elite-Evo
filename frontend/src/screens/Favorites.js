@@ -18,13 +18,17 @@ import { removeFavorite, addFavorite } from "../store/favoritesSlice";
 import { addItem } from "../store/cartSlice";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import productImages from "../utils/productImages";
 import { SPACING } from "../theme";
 
 productImages;
 
-const FavoriteItem = ({ item, onAddToCart }) => {
+const FavoriteItem = ({ item, onAddToCart, onRemove }) => {
   const dispatch = useDispatch();
+  const { colors, isDarkMode } = useTheme();
+  const addButtonTextColor = isDarkMode ? "#FFF" : "#000";
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -52,7 +56,7 @@ const FavoriteItem = ({ item, onAddToCart }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      dispatch(removeFavorite(item.id));
+      onRemove(item.id);
     });
   };
 
@@ -60,10 +64,11 @@ const FavoriteItem = ({ item, onAddToCart }) => {
     <Animated.View
       style={[
         styles.card,
+        { backgroundColor: colors.cardBackground, borderColor: colors.border },
         { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
       ]}
     >
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, { backgroundColor: colors.secondary }]}>
         {item.image && productImages[item.image] && (
           <Image
             source={productImages[item.image]}
@@ -74,20 +79,26 @@ const FavoriteItem = ({ item, onAddToCart }) => {
       </View>
 
       <View style={styles.info}>
-        <Text style={styles.productName} numberOfLines={1}>
+        <Text style={[styles.productName, { color: colors.textPrimary }]} numberOfLines={1}>
           {item.name}
         </Text>
-        <Text style={styles.productFlavor}>{item.flavor}</Text>
+        <Text style={[styles.productFlavor, { color: colors.textSecondary }]}>{item.flavor}</Text>
         <Text style={styles.productPrice}>
           R$ {item.price.toFixed(2).replace(".", ",")}
         </Text>
 
         <TouchableOpacity
-          style={styles.addToCartBtn}
+          style={[
+            styles.addToCartBtn,
+            {
+              backgroundColor: isDarkMode ? colors.surface : colors.primary,
+              borderColor: isDarkMode ? colors.border : colors.primary,
+            },
+          ]}
           onPress={() => onAddToCart(item)}
         >
-          <ShoppingCart color="#FFF" size={14} />
-          <Text style={styles.addToCartText}>Adicionar</Text>
+          <ShoppingCart color={addButtonTextColor} size={14} />
+          <Text style={[styles.addToCartText, { color: addButtonTextColor }]}>Adicionar</Text>
         </TouchableOpacity>
       </View>
 
@@ -103,6 +114,8 @@ export default function Favorites() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const db = useSQLiteContext();
+  const { user } = useAuth();
+  const { colors } = useTheme();
   const items = useSelector((state) => state.favorites.items);
 
   useEffect(() => {
@@ -135,6 +148,23 @@ export default function Favorites() {
     }
   };
 
+  const handleRemoveFavorite = async (productId) => {
+    dispatch(removeFavorite(productId));
+
+    if (!user?.id) {
+      return;
+    }
+
+    try {
+      await db.runAsync(
+        "DELETE FROM favorites WHERE userId = ? AND productId = ?",
+        [user.id, productId],
+      );
+    } catch (error) {
+      console.error("Erro ao remover favorito:", error);
+    }
+  };
+
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
     if (Platform.OS === "android") {
@@ -149,13 +179,13 @@ export default function Favorites() {
 
   if (items.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Favoritos</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Favoritos</Text>
         </View>
         <View style={styles.emptyContainer}>
-          <Heart color="#1A1A1A" size={90} />
-          <Text style={styles.emptyTitle}>Nenhum favorito ainda</Text>
+          <Heart color={colors.border} size={90} />
+          <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>Nenhum favorito ainda</Text>
           <TouchableOpacity
             style={styles.emptyBtn}
             onPress={() => navigation.navigate("Catálogo")}
@@ -168,10 +198,10 @@ export default function Favorites() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Favoritos</Text>
-        <Text style={styles.headerCount}>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Favoritos</Text>
+        <Text style={[styles.headerCount, { color: colors.textSecondary }]}>
           {items.length} {items.length === 1 ? "item" : "itens"}
         </Text>
       </View>
@@ -181,7 +211,11 @@ export default function Favorites() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <FavoriteItem item={item} onAddToCart={handleAddToCart} />
+          <FavoriteItem
+            item={item}
+            onAddToCart={handleAddToCart}
+            onRemove={handleRemoveFavorite}
+          />
         )}
       />
     </SafeAreaView>

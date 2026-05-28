@@ -88,6 +88,7 @@ export async function initializeDatabase(database) {
 await database.execAsync(`
   INSERT OR IGNORE INTO users (name, email, password) 
   VALUES ('Administrador', 'admin@eliteevo.com', 'admin123');
+  INSERT OR IGNORE INTO users (name, email, password)
   VALUES ('Usuario', 'mathias@eliteevo.com', '123456');
 `);
     // Adiciona coluna profileImage em bancos já existentes

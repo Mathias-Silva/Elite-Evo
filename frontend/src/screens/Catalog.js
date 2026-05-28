@@ -21,8 +21,9 @@ import { useAuth } from "../context/AuthContext";
 import { SPACING } from "../theme";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
-import { addFavorite, removeFavorite } from "../store/favoritesSlice";
+import { addFavorite, removeFavorite, setFavorites } from "../store/favoritesSlice";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "../context/ThemeContext";
 
 const { width } = Dimensions.get("window");
 
@@ -34,6 +35,8 @@ export default function Catalog() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user, isLoggedIn } = useAuth();
+  const { colors, isDarkMode } = useTheme();
+  const addButtonTextColor = isDarkMode ? "#FFF" : "#000";
   const dispatch = useDispatch();
   const db = useSQLiteContext();
 
@@ -45,6 +48,7 @@ export default function Catalog() {
   useFocusEffect(
     useCallback(() => {
       setCategoryFilter(route.params?.category ?? null);
+      loadFavorites();
     }, [route.params?.category])
   );
 
@@ -88,6 +92,27 @@ export default function Catalog() {
     loadProducts();
   }, []);
 
+  const loadFavorites = async () => {
+    if (!user?.id) {
+      dispatch(setFavorites([]));
+      return;
+    }
+
+    try {
+      const rows = await db.getAllAsync(
+        `SELECT p.*
+         FROM favorites f
+         INNER JOIN products p ON p.id = f.productId
+         WHERE f.userId = ?
+         ORDER BY f.id DESC`,
+        [user.id],
+      );
+      dispatch(setFavorites(rows));
+    } catch (error) {
+      console.error("Erro ao carregar favoritos:", error);
+    }
+  };
+
   const filteredProducts = useMemo(() => {
     let result = products;
 
@@ -121,26 +146,46 @@ const showToast = (message) => {
     showToast(`${product.name} adicionado ao carrinho!`);
   };
 
-  const handleToggleFavorite = (product) => {
+  const handleToggleFavorite = async (product) => {
     if (favoriteIds.has(product.id)) {
       dispatch(removeFavorite(product.id));
+      if (user?.id) {
+        try {
+          await db.runAsync(
+            "DELETE FROM favorites WHERE userId = ? AND productId = ?",
+            [user.id, product.id],
+          );
+        } catch (error) {
+          console.error("Erro ao remover favorito:", error);
+        }
+      }
       showToast(`${product.name} removido dos favoritos.`);
     } else {
       dispatch(addFavorite(product));
+      if (user?.id) {
+        try {
+          await db.runAsync(
+            "INSERT OR IGNORE INTO favorites (userId, productId) VALUES (?, ?)",
+            [user.id, product.id],
+          );
+        } catch (error) {
+          console.error("Erro ao salvar favorito:", error);
+        }
+      }
       showToast(`${product.name} adicionado aos favoritos!`);
     }
   };
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color="#FF6B00" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top", "left", "right"]}>
       <ScreenHeader
         title={categoryFilter ? categoryFilter : "Catálogo"}
         subtitle={
@@ -157,7 +202,7 @@ const showToast = (message) => {
             style={styles.cartBadgeContainer}
             onPress={() => navigation.navigate("Cart")}
           >
-            <ShoppingCart color="#FFF" size={22} />
+            <ShoppingCart color={colors.textPrimary} size={22} />
             {cartCount > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{cartCount}</Text>
@@ -167,7 +212,7 @@ const showToast = (message) => {
         }
       />
 
-      <View style={styles.pageBody}>
+      <View style={[styles.pageBody, { backgroundColor: colors.background }]}>
         {categoryFilter ? (
           <View style={styles.filterSection}>
             <View style={styles.categoryChipRow}>
@@ -175,7 +220,7 @@ const showToast = (message) => {
                 <Text style={styles.categoryChipText}>{categoryFilter}</Text>
               </View>
               <TouchableOpacity onPress={clearCategoryFilter} style={styles.clearCategoryBtn}>
-                <Text style={styles.clearCategoryText}>Ver tudo ✕</Text>
+                <Text style={[styles.clearCategoryText, { color: colors.textSecondary }]}>Ver tudo ✕</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -189,10 +234,10 @@ const showToast = (message) => {
               : styles.searchSectionFirst,
           ]}
         >
-          <View style={styles.searchContainer}>
+          <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground }]}>
             <Search color="#FF6B00" size={18} style={styles.searchIcon} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.textPrimary }]}
               placeholder="Buscar produto..."
               placeholderTextColor="#666"
               value={searchQuery}
@@ -208,8 +253,8 @@ const showToast = (message) => {
       </View>
 
       {filteredProducts.length === 0 ? (
-        <View style={styles.emptySearch}>
-          <Text style={styles.emptySearchText}>
+          <View style={styles.emptySearch}>
+          <Text style={[styles.emptySearchText, { color: colors.textSecondary }]}>
             {searchQuery.trim()
               ? `Nenhum produto encontrado para "${searchQuery}"`
               : categoryFilter
@@ -231,7 +276,7 @@ const showToast = (message) => {
           renderItem={({ item }) => {
             const isFav = favoriteIds.has(item.id);
             return (
-              <View style={styles.productCard}>
+              <View style={[styles.productCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
                 {item.tag && item.tag !== "NULL" && (
                   <View
                     style={[
@@ -257,7 +302,7 @@ const showToast = (message) => {
                   />
                 </TouchableOpacity>
 
-                <View style={styles.imagePlaceholder}>
+                <View style={[styles.imagePlaceholder, { backgroundColor: colors.secondary }]}>
                   {productImages[item.image] ? (
                     <Image
                       source={productImages[item.image]}
@@ -269,27 +314,33 @@ const showToast = (message) => {
                   )}
                 </View>
 
-                <Text style={styles.productName} numberOfLines={1}>
+                <Text style={[styles.productName, { color: colors.textPrimary }]} numberOfLines={1}>
                   {item.name}
                 </Text>
-                <Text style={styles.productFlavor}>{item.flavor}</Text>
+                <Text style={[styles.productFlavor, { color: colors.textSecondary }]}>{item.flavor}</Text>
 
                 <View style={styles.priceRow}>
                   <Text style={styles.productPrice}>
                     R$ {item.price.toFixed(2).replace(".", ",")}
                   </Text>
-                  <View style={styles.ratingBadge}>
+                  <View style={[styles.ratingBadge, { backgroundColor: colors.secondary }]}>
                     <Star color="#FFB800" fill="#FFB800" size={12} />
                     <Text style={styles.ratingText}>{item.rating}</Text>
                   </View>
                 </View>
 
                 <TouchableOpacity
-                  style={styles.addToCartBtn}
+                  style={[
+                    styles.addToCartBtn,
+                    {
+                      backgroundColor: isDarkMode ? colors.surface : colors.primary,
+                      borderColor: isDarkMode ? colors.border : colors.primary,
+                    },
+                  ]}
                   onPress={() => handleAddToCart(item)}
                 >
-                  <ShoppingCart color="#FFF" size={18} />
-                  <Text style={styles.addToCartText}>Adicionar</Text>
+                  <ShoppingCart color={addButtonTextColor} size={18} />
+                  <Text style={[styles.addToCartText, { color: addButtonTextColor }]}>Adicionar</Text>
                 </TouchableOpacity>
               </View>
             );

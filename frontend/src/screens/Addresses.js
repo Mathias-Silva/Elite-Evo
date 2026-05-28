@@ -16,11 +16,13 @@ import { useAuth } from "../context/AuthContext";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ScreenBody } from "../components/ScreenBody";
 import { SPACING } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function AddressesScreen() {
   const navigation = useNavigation();
   const db = useSQLiteContext();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,28 +69,33 @@ export default function AddressesScreen() {
   };
 
   const renderAddress = ({ item }) => (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: colors.cardBackground, borderColor: colors.border },
+      ]}
+    >
       <View style={styles.cardInfo}>
         <View style={styles.headerRow}>
           <MapPin color="#FF6B00" size={18} />
-          <Text style={styles.street}>
+          <Text style={[styles.street, { color: colors.textPrimary }]}>
             {item.street}, {item.number}
           </Text>
         </View>
-        <Text style={styles.details}>
+        <Text style={[styles.details, { color: colors.textSecondary }]}>
           {item.neighborhood} - {item.city} / {item.state}
         </Text>
-        <Text style={styles.zip}>CEP: {item.zipCode}</Text>
+        <Text style={[styles.zip, { color: colors.textSecondary }]}>CEP: {item.zipCode}</Text>
         {item.complement ? (
-          <Text style={styles.complement}>Comp: {item.complement}</Text>
+          <Text style={[styles.complement, { color: colors.textSecondary }]}>Comp: {item.complement}</Text>
         ) : null}
       </View>
       <View style={styles.actions}>
         <TouchableOpacity
-          style={styles.actionBtn}
+          style={[styles.actionBtn, { backgroundColor: colors.secondary }]}
           onPress={() => navigation.navigate("AddressForm", { id: item.id })}
         >
-          <Edit3 color="#FFF" size={18} />
+          <Edit3 color={colors.textPrimary} size={18} />
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.actionBtn, { backgroundColor: "#330000" }]}
@@ -101,7 +108,7 @@ export default function AddressesScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
         title="Meus Endereços"
         onBack={() => navigation.goBack()}
@@ -116,9 +123,9 @@ export default function AddressesScreen() {
       ) : addresses.length === 0 ? (
         <ScreenBody>
         <View style={styles.center}>
-          <MapPin color="#333" size={80} style={{ marginBottom: 20 }} />
-          <Text style={styles.emptyText}>Nenhum endereço cadastrado</Text>
-          <Text style={styles.emptySub}>
+          <MapPin color={colors.border} size={80} style={{ marginBottom: 20 }} />
+          <Text style={[styles.emptyText, { color: colors.textPrimary }]}>Nenhum endereço cadastrado</Text>
+          <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
             Adicione um endereço para receber seus suplementos mais rápido.
           </Text>
           <TouchableOpacity
@@ -138,7 +145,7 @@ export default function AddressesScreen() {
             contentContainerStyle={styles.listContent}
             renderItem={renderAddress}
           />
-          <View style={styles.footer}>
+          <View style={[styles.footer, { borderColor: colors.border, backgroundColor: colors.background }]}>
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={() => navigation.navigate("AddressForm")}

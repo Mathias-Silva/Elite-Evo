@@ -16,11 +16,13 @@ import { SPACING } from "../theme";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function CheckoutAddressScreen() {
   const navigation = useNavigation();
   const db = useSQLiteContext();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,30 +71,37 @@ export default function CheckoutAddressScreen() {
     const isSelected = item.id === selectedId;
     return (
       <TouchableOpacity
-        style={[styles.card, isSelected && styles.cardSelected]}
+        style={[
+          styles.card,
+          {
+            backgroundColor: colors.cardBackground,
+            borderColor: isSelected ? colors.primary : colors.border,
+          },
+          isSelected && styles.cardSelected,
+        ]}
         onPress={() => setSelectedId(item.id)}
         activeOpacity={0.8}
       >
         <View style={styles.cardInfo}>
           <View style={styles.headerRow}>
-            <MapPin color={isSelected ? "#FF6B00" : "#666"} size={18} />
-            <Text style={[styles.street, isSelected && { color: "#FFF" }]}>
+            <MapPin color={isSelected ? colors.primary : colors.textSecondary} size={18} />
+            <Text style={[styles.street, { color: colors.textPrimary }]}>
               {item.street}, {item.number}
             </Text>
           </View>
-          <Text style={styles.details}>
+          <Text style={[styles.details, { color: colors.textSecondary }]}>
             {item.neighborhood} - {item.city} / {item.state}
           </Text>
-          <Text style={styles.zip}>CEP: {item.zipCode}</Text>
+          <Text style={[styles.zip, { color: colors.textSecondary }]}>CEP: {item.zipCode}</Text>
           {item.complement ? (
-            <Text style={styles.complement}>Comp: {item.complement}</Text>
+            <Text style={[styles.complement, { color: colors.textSecondary }]}>Comp: {item.complement}</Text>
           ) : null}
         </View>
         <View style={styles.checkWrapper}>
           {isSelected ? (
-            <CheckCircle2 color="#FF6B00" size={24} />
+            <CheckCircle2 color={colors.primary} size={24} />
           ) : (
-            <View style={styles.uncheckCircle} />
+            <View style={[styles.uncheckCircle, { borderColor: colors.border }]} />
           )}
         </View>
       </TouchableOpacity>
@@ -100,7 +109,7 @@ export default function CheckoutAddressScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
         title="Onde entregar?"
         onBack={() => navigation.goBack()}
@@ -115,9 +124,9 @@ export default function CheckoutAddressScreen() {
       ) : addresses.length === 0 ? (
         <ScreenBody>
         <View style={styles.center}>
-          <MapPin color="#333" size={80} style={{ marginBottom: 20 }} />
-          <Text style={styles.emptyText}>Nenhum endereço encontrado</Text>
-          <Text style={styles.emptySub}>
+          <MapPin color={colors.border} size={80} style={{ marginBottom: 20 }} />
+          <Text style={[styles.emptyText, { color: colors.textPrimary }]}>Nenhum endereço encontrado</Text>
+          <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
             Cadastre um endereço para enviarmos seu pedido.
           </Text>
           <TouchableOpacity
@@ -141,14 +150,14 @@ export default function CheckoutAddressScreen() {
                 style={styles.addBtnSmall}
                 onPress={() => navigation.navigate("AddressForm")}
               >
-                <Plus color="#AAA" size={16} />
-                <Text style={styles.addBtnSmallText}>
+                <Plus color={colors.textSecondary} size={16} />
+                <Text style={[styles.addBtnSmallText, { color: colors.textSecondary }]}>
                   Adicionar outro endereço
                 </Text>
               </TouchableOpacity>
             }
           />
-          <View style={styles.footer}>
+          <View style={[styles.footer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={handleContinue}
