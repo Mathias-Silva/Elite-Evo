@@ -1,50 +1,55 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Globe, Share2, Users } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 
-export const FooterInfo = () => (
-  <View style={styles.container}>
-    <Text style={styles.logo}>
+export const FooterInfo = () => {
+  const { colors } = useTheme();
+
+  return (
+  <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <Text style={[styles.logo, { color: colors.textPrimary }]}>
       ELITE<Text style={{ color: "#FF6B00" }}>EVO</Text>
     </Text>
-    <Text style={styles.desc}>
+    <Text style={[styles.desc, { color: colors.textSecondary }]}>
       A Elite Evo nasceu para redefinir os limites do corpo humano...
     </Text>
 
     <View style={styles.socialRow}>
-      <View style={styles.socialIcon}>
-        <Globe color="#FFF" size={20} />
+      <View style={[styles.socialIcon, { backgroundColor: colors.secondary }]}>
+        <Globe color={colors.textPrimary} size={20} />
       </View>
-      <View style={styles.socialIcon}>
-        <Share2 color="#FFF" size={20} />
+      <View style={[styles.socialIcon, { backgroundColor: colors.secondary }]}>
+        <Share2 color={colors.textPrimary} size={20} />
       </View>
-      <View style={styles.socialIcon}>
-        <Users color="#FFF" size={20} />
+      <View style={[styles.socialIcon, { backgroundColor: colors.secondary }]}>
+        <Users color={colors.textPrimary} size={20} />
       </View>
     </View>
 
     <View style={styles.navSection}>
-      <Text style={styles.navTitle}>Navegação</Text>
+      <Text style={[styles.navTitle, { color: colors.textPrimary }]}>Navegação</Text>
       {["Produtos", "Sobre Nós", "Blog Performance", "Rastrear Pedido"].map(
         (item) => (
-          <Text key={item} style={styles.navItem}>
+          <Text key={item} style={[styles.navItem, { color: colors.textSecondary }]}>
             {item}
           </Text>
         ),
       )}
     </View>
 
-    <View style={styles.securityBadge}>
-      <Text style={styles.securityText}>
+    <View style={[styles.securityBadge, { borderColor: colors.border }]}>
+      <Text style={[styles.securityText, { color: colors.textSecondary }]}>
         🔒 Ambiente 100% criptografado e seguro.
       </Text>
     </View>
 
-    <Text style={styles.copyright}>
+    <Text style={[styles.copyright, { color: colors.textSecondary }]}>
       © 2024 Elite Evo Suplementos. CNPJ: 00.000.000/0001-00
     </Text>
   </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

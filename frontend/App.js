@@ -6,19 +6,28 @@ import { Provider } from 'react-redux';
 import { store } from './src/store';
 import { initializeDatabase } from './src/database/initializeDatabase';
 import { AuthProvider } from './src/context/AuthContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import TabNavigator from './src/navigation';
 import { StatusBar } from 'react-native';
+
+function ThemedStatusBar() {
+  const { isDarkMode } = useTheme();
+
+  return <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />;
+}
 
 export default function App() {
   return (
     <Provider store={store}>
       <SQLiteProvider databaseName="eliteEvo.db" onInit={initializeDatabase}>
-        <StatusBar barStyle="light-content" />
-        <AuthProvider>
-          <NavigationContainer>
-            <TabNavigator />
-          </NavigationContainer>
-        </AuthProvider>
+        <ThemeProvider>
+          <ThemedStatusBar />
+          <AuthProvider>
+            <NavigationContainer>
+              <TabNavigator />
+            </NavigationContainer>
+          </AuthProvider>
+        </ThemeProvider>
       </SQLiteProvider>
     </Provider>
   );

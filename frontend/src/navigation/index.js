@@ -27,8 +27,13 @@ import CheckoutAddressScreen from "../screens/CheckoutAddress";
 import PaymentScreen from "../screens/Payment";
 import AdminScreen from "../screens/AdminScreen";
 import ForgotPasswordScreen from "../screens/ForgotPassword";
+import OrdersScreen from "../screens/Orders";
+import OrderDetailsScreen from "../screens/OrderDetails";
+import ChangePasswordScreen from "../screens/ChangePassword";
+import SettingsScreen from "../screens/Settings";
 
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createNativeStackNavigator();
@@ -54,6 +59,10 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="ProfileMain" component={Profile} />
       <ProfileStack.Screen name="Addresses" component={AddressesScreen} />
       <ProfileStack.Screen name="AddressForm" component={AddressFormScreen} />
+      <ProfileStack.Screen name="Orders" component={OrdersScreen} />
+      <ProfileStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
+      <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <ProfileStack.Screen name="Settings" component={SettingsScreen} />
     </ProfileStack.Navigator>
   );
 }
@@ -75,6 +84,7 @@ function AuthStackNavigator() {
 
 export default function TabNavigator() {
   const { isLoggedIn, user } = useAuth();
+  const { colors } = useTheme();
 
   const isAdmin = isLoggedIn && user?.email?.toLowerCase() === "admin@eliteevo.com";
   
@@ -87,10 +97,10 @@ export default function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#FF6B00",
-        tabBarInactiveTintColor: "#666",
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: "#0A0A0A",
-          borderTopColor: "#1A1A1A",
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           height: Platform.OS === "android" ? 85 : 95,
           paddingBottom: Platform.OS === "android" ? 15 : 30,
           paddingTop: 10,

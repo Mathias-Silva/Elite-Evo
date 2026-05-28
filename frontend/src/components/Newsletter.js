@@ -6,8 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 
-export const Newsletter = () => (
+export const Newsletter = () => {
+  const { isDarkMode } = useTheme();
+
+  return (
   <View style={styles.container}>
     <Text style={styles.title}>JUNTE-SE AO ELITE SQUAD</Text>
     <Text style={styles.subtitle}>
@@ -17,14 +21,15 @@ export const Newsletter = () => (
     <TextInput
       style={styles.input}
       placeholder="Seu melhor e-mail"
-      placeholderTextColor="rgba(255,255,255,0.7)"
+      placeholderTextColor={isDarkMode ? "rgba(255,255,255,0.7)" : "#7A3A10"}
     />
 
     <TouchableOpacity style={styles.button}>
       <Text style={styles.buttonText}>INSCREVER</Text>
     </TouchableOpacity>
   </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -2,11 +2,18 @@ import React from 'react';
 import { TouchableOpacity, Text, ImageBackground, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SPACING } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 export function CategoryCard({ title, image, fullWidth, onPress }) {
+  const { colors } = useTheme();
+
   return (
     <TouchableOpacity 
-      style={[styles.container, fullWidth ? styles.fullWidth : styles.halfWidth]}
+      style={[
+        styles.container,
+        { backgroundColor: colors.cardBackground },
+        fullWidth ? styles.fullWidth : styles.halfWidth,
+      ]}
       activeOpacity={0.9}
       onPress={onPress}
     >

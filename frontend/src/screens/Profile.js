@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useAuth } from "../context/AuthContext";
 import * as ImagePicker from "expo-image-picker";
@@ -21,9 +21,11 @@ import { useSelector } from "react-redux";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const db = useSQLiteContext();
   const { user, setUser, setIsLoggedIn } = useAuth();
   const [profileImage, setProfileImage] = useState(null);
+  const [ordersCount, setOrdersCount] = useState(0);
 
   // Stats vindas do Redux
   const favoriteCount = useSelector(
@@ -31,11 +33,28 @@ export default function ProfileScreen() {
   );
   const cartCount = useSelector((state) => state.cart?.items?.length || 0);
 
+  const points = (ordersCount * 100) + (favoriteCount * 10);
+
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && isFocused) {
       loadProfileImage();
+      loadOrdersCount();
     }
-  }, [user]);
+  }, [user, isFocused]);
+
+  async function loadOrdersCount() {
+    try {
+      const result = await db.getFirstAsync(
+        "SELECT COUNT(*) as total FROM orders WHERE userId = ?",
+        [user?.id],
+      );
+      if (result) {
+        setOrdersCount(result.total);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar quantidade de pedidos:", error);
+    }
+  }
 
   async function loadProfileImage() {
     try {
@@ -213,11 +232,11 @@ export default function ProfileScreen() {
         {/* Stats Row Dinâmicas */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{ordersCount}</Text>
             <Text style={styles.statLabel}>PEDIDOS</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: "#FF6B00" }]}>100</Text>
+            <Text style={[styles.statValue, { color: "#FF6B00" }]}>{points}</Text>
             <Text style={styles.statLabel}>PONTOS</Text>
           </View>
           <View style={styles.statCard}>
@@ -228,17 +247,20 @@ export default function ProfileScreen() {
 
         {/* Menu List */}
         <View style={styles.menuContainer}>
-          <MenuItem icon="package-variant-closed" label="Meus Pedidos" />
+          <MenuItem
+            icon="package-variant-closed"
+            label="Meus Pedidos"
+            onPress={() => navigation.navigate("Orders")}
+          />
           <MenuItem
             icon="map-marker-outline"
             label="Endereços"
             onPress={() => navigation.navigate("Addresses")}
           />
-          <MenuItem icon="credit-card-outline" label="Pagamentos" />
           <MenuItem
-            icon="bell-outline"
-            label="Notificações"
-            badge={cartCount > 0 ? `${cartCount} NO CARRINHO` : null}
+            icon="lock-outline"
+            label="Trocar Senha"
+            onPress={() => navigation.navigate("ChangePassword")}
           />
           <MenuItem
             icon="database-export"

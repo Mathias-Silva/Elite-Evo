@@ -6,6 +6,10 @@ const favoritesSlice = createSlice({
     items: [],
   },
   reducers: {
+    setFavorites: (state, action) => {
+      state.items = action.payload || [];
+    },
+
     addFavorite: (state, action) => {
       const product = action.payload;
       const already = state.items.find(item => item.id === product.id);
@@ -31,5 +35,5 @@ const favoritesSlice = createSlice({
   },
 });
 
-export const { addFavorite, removeFavorite, updateFavorite } = favoritesSlice.actions;
+export const { addFavorite, removeFavorite, setFavorites, updateFavorite } = favoritesSlice.actions;
 export default favoritesSlice.reducer;

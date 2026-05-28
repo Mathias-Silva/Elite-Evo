@@ -16,8 +16,10 @@ import {
   ExternalLink,
 } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../context/AuthContext";
+import { useSQLiteContext } from "expo-sqlite";
+import { clearCart } from "../store/cartSlice";
 import * as Linking from "expo-linking";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SPACING } from "../theme";
@@ -25,6 +27,8 @@ import { SPACING } from "../theme";
 export default function PaymentScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
+  const db = useSQLiteContext();
   const { user } = useAuth();
   const address = route.params?.address;
   const { items, totalAmount } = useSelector((state) => state.cart);
@@ -68,6 +72,31 @@ export default function PaymentScreen() {
       const data = await response.json();
 
       if (data.init_point) {
+        // --- ARMAZENA O PEDIDO NO BANCO LOCAL ---
+        const orderNumber = "EVO-" + Math.floor(100000 + Math.random() * 900000);
+        const createdAt = new Date().toISOString();
+        const shippingAddressStr = address
+          ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city}/${address.state}`
+          : "";
+
+        // 1. Cria o Pedido
+        const orderResult = await db.runAsync(
+          "INSERT INTO orders (userId, orderNumber, totalAmount, shippingAddress, createdAt) VALUES (?, ?, ?, ?, ?)",
+          [user?.id || 1, orderNumber, totalAmount, shippingAddressStr, createdAt]
+        );
+        const orderId = orderResult.lastInsertRowId;
+
+        // 2. Cria os Itens do Pedido
+        for (const item of items) {
+          await db.runAsync(
+            "INSERT INTO order_items (orderId, productId, productName, flavor, price, quantity, image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [orderId, item.id, item.name, item.flavor || "", item.price, item.quantity, item.image || ""]
+          );
+        }
+
+        // 3. Limpa o carrinho no Redux
+        dispatch(clearCart());
+
         // Redireciona o usuário para o Checkout Transparente (Web/App Mercado Pago)
         await Linking.openURL(data.init_point);
       } else {
