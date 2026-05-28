@@ -364,14 +364,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   backBtn: {
-    marginTop: 20,
-    backgroundColor: "#121212",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 12,
+    marginTop: 25,
+    backgroundColor: "#FF6B00",
+    paddingVertical: 14,
+    paddingHorizontal: 35,
+    borderRadius: 30,
   },
   backBtnText: {
-    color: "#FF6B00",
+    color: "#FFF",
     fontWeight: "bold",
+    fontSize: 14,
+  },
+  emptyBtnText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });
