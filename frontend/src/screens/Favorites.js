@@ -23,7 +23,9 @@ import { SPACING } from "../theme";
 
 productImages;
 
-const FavoriteItem = ({ item, onAddToCart }) => {
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+
+const FavoriteItem = ({ item, onAddToCart, onOpen }) => {
   const dispatch = useDispatch();
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -57,11 +59,13 @@ const FavoriteItem = ({ item, onAddToCart }) => {
   };
 
   return (
-    <Animated.View
+    <AnimatedTouchable
       style={[
         styles.card,
         { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
       ]}
+      activeOpacity={0.85}
+      onPress={() => onOpen(item)}
     >
       <View style={styles.imageContainer}>
         {item.image && productImages[item.image] && (
@@ -94,7 +98,7 @@ const FavoriteItem = ({ item, onAddToCart }) => {
       <TouchableOpacity style={styles.removeBtn} onPress={handleConfirmRemove}>
         <Trash2 color="#666" size={20} />
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedTouchable>
   );
 };
 
@@ -147,6 +151,13 @@ export default function Favorites() {
     }
   };
 
+  const handleOpenProduct = (product) => {
+    navigation.navigate("ProductDetail", {
+      product,
+      returnTo: "Favoritos",
+    });
+  };
+
   if (items.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
@@ -181,7 +192,11 @@ export default function Favorites() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <FavoriteItem item={item} onAddToCart={handleAddToCart} />
+          <FavoriteItem
+            item={item}
+            onAddToCart={handleAddToCart}
+            onOpen={handleOpenProduct}
+          />
         )}
       />
     </SafeAreaView>

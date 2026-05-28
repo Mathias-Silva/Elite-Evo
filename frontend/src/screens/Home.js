@@ -83,6 +83,13 @@ export default function Home() {
       ...(category ? { category } : {}),
     });
   };
+
+  const goToProductDetail = (product) => {
+    navigation.navigate("ProductDetail", {
+      product,
+      returnTo: homeTab,
+    });
+  };
   const db = useSQLiteContext();
 
   const [products, setProducts] = useState([]);
@@ -292,7 +299,11 @@ export default function Home() {
         renderItem={({ item }) => {
           const isFav = favoriteIds.has(item.id);
           return (
-            <View style={styles.productCard}>
+            <TouchableOpacity
+              style={styles.productCard}
+              activeOpacity={0.85}
+              onPress={() => goToProductDetail(item)}
+            >
               {item.tag && item.tag !== "NULL" && (
                 <View style={[styles.tag, { backgroundColor: item.tag === "ESGOTADO" ? "#333" : "#FF6B00" }]}>
                   <Text style={styles.tagText}>{item.tag}</Text>
@@ -319,7 +330,7 @@ export default function Home() {
                 <ShoppingCart color="#FFF" size={18} />
                 <Text style={styles.addToCartText}>Adicionar</Text>
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           );
         }}
       />

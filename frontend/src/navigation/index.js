@@ -27,6 +27,7 @@ import CheckoutAddressScreen from "../screens/CheckoutAddress";
 import PaymentScreen from "../screens/Payment";
 import AdminScreen from "../screens/AdminScreen";
 import ForgotPasswordScreen from "../screens/ForgotPassword";
+import ProductDetailScreen from "../screens/ProductDetail";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -34,6 +35,7 @@ const Tab = createBottomTabNavigator();
 const AuthStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 const CartStack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
 
 
 
@@ -73,7 +75,7 @@ function AuthStackNavigator() {
 
 // --- COMPONENTE PRINCIPAL ---
 
-export default function TabNavigator() {
+function TabNavigator() {
   const { isLoggedIn, user } = useAuth();
 
   const isAdmin = isLoggedIn && user?.email?.toLowerCase() === "admin@eliteevo.com";
@@ -215,5 +217,14 @@ export default function TabNavigator() {
         </>
       )}
     </Tab.Navigator>
+  );
+}
+
+export default function RootNavigator() {
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Screen name="MainTabs" component={TabNavigator} />
+      <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} />
+    </RootStack.Navigator>
   );
 }

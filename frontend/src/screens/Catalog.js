@@ -131,6 +131,13 @@ const showToast = (message) => {
     }
   };
 
+  const handleOpenProduct = (product) => {
+    navigation.navigate("ProductDetail", {
+      product,
+      returnTo: "Catálogo",
+    });
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -231,7 +238,11 @@ const showToast = (message) => {
           renderItem={({ item }) => {
             const isFav = favoriteIds.has(item.id);
             return (
-              <View style={styles.productCard}>
+              <TouchableOpacity
+                style={styles.productCard}
+                activeOpacity={0.85}
+                onPress={() => handleOpenProduct(item)}
+              >
                 {item.tag && item.tag !== "NULL" && (
                   <View
                     style={[
@@ -291,7 +302,7 @@ const showToast = (message) => {
                   <ShoppingCart color="#FFF" size={18} />
                   <Text style={styles.addToCartText}>Adicionar</Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />
