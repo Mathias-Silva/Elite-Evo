@@ -140,6 +140,25 @@ const showToast = (message) => {
     }
   };
 
+const fetchProducts = useCallback(async () => {
+    try {
+      const allProducts = await db.getAllAsync("SELECT * FROM products");
+      setProducts(allProducts);
+    } catch (error) {
+      console.error("Erro ao buscar produtos no catálogo:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [db]);
+
+  
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+      loadFavorites();
+    }, [fetchProducts, loadFavorites])
+  );
+
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
     showToast(`${product.name} adicionado ao carrinho!`);

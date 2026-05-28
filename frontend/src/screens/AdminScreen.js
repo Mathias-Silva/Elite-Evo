@@ -1,30 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  ScrollView,
-  Keyboard,
-  Image,
-  Platform,
-  Modal,
-} from "react-native";
+import {View,Text,StyleSheet,FlatList,TouchableOpacity,TextInput,Alert,ScrollView,Keyboard,Image,Platform,Modal,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Trash2,
-  Plus,
-  Users,
-  User,
-  Package,
-  LogOut,
-  Edit3,
-  XCircle,
-  CheckCircle,
-} from "lucide-react-native";
+import {Trash2,Plus,Users,User,Package,LogOut,Edit3,XCircle,CheckCircle,} from "lucide-react-native";
 import { useAuth } from "../context/AuthContext";
 import { useSQLiteContext } from "expo-sqlite";
 import { useDispatch } from "react-redux";
@@ -97,7 +74,7 @@ export default function AdminScreen() {
   useEffect(() => {
     fetchData();
   }, [tab]);
-
+// Função para carregar produtos ou usuários do banco de dados
   const fetchData = async () => {
     try {
       if (tab === "products") {
@@ -115,7 +92,7 @@ export default function AdminScreen() {
       console.error("Erro ao carregar dados:", error);
     }
   };
-
+  // Função para salvar um novo produto ou atualizar um existente
   const handleSaveProduct = async () => {
     if (!newProduct.name || !newProduct.price) {
       mostrarAlerta("Erro", "Nome e Preço são obrigatórios");
@@ -140,7 +117,7 @@ export default function AdminScreen() {
             editingId,
           ],
         );
-
+        // Atualiza o produto no Redux para refletir as mudanças imediatamente
         const updatedProduct = {
           id: editingId,
           name: newProduct.name,
@@ -174,7 +151,7 @@ export default function AdminScreen() {
       mostrarAlerta("Erro", "Não foi possível salvar o produto.");
     }
   };
-
+  // Função para iniciar edição de um produto
   const startEdit = (item) => {
     setNewProduct({
       name: item.name,
@@ -199,7 +176,7 @@ export default function AdminScreen() {
       setUserDetailModalVisible(true);
     }
   };
-
+  // Função para resetar o formulário de criação/edição
   const resetForm = () => {
     setNewProduct({ name: "", price: "", flavor: "", image: "", tag: "" });
     setIsEditing(false);
@@ -207,7 +184,7 @@ export default function AdminScreen() {
     setModalVisible(false);
     Keyboard.dismiss();
   };
-
+  // Gerenciador de exclusão para produtos e usuários
   const handleDelete = async (targetId, targetEmail) => {
     if (
       tab === "users" &&
